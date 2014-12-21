@@ -20,10 +20,12 @@ function initHelpers() {
           document.querySelector('body').appendChild(r);
           return r;
         }();
-    report.innerHTML += '<p>' + [].slice.call(arguments).join() + '</p>';
+    var entry = document.createElement('p');
+    entry.innerHTML = [].slice.call(arguments).join();
+    report.appendChild(entry);
+    
     if (useCustomCss) {
-      var to = function () { document.querySelector('#result p:last-child')
-                             .className = 'fadeIn'; };
+      var to = function () { entry.className = 'fadeIn'; };
       setTimeout(to, 200);
     }
   }
