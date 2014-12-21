@@ -1,0 +1,96 @@
+body {
+    font: 12px/15px normal verdana, arial;
+    margin: 3em;
+}
+
+body:after {
+    position:fixed;
+    color: #aaa;
+    white-space: pre;
+    content: '\0a\a9\a0 2014-2020 KooiInc';
+    top: 25px;
+    right: 10px;
+    font-size: 0.8em;
+    text-align: right;
+}
+
+.html {
+    font-family: "courier new";
+    color: green
+}
+
+#result p {
+    opacity: 0;
+    margin: 0.4em 0;
+    max-width: 1024px;
+}
+#result .fadeIn {
+    opacity: 1;
+    transition: all ease-in 0.8s 0s;
+}
+code, pre.code {
+    background: #eee;
+    color: green;
+    padding: 0;
+}
+
+pre.code {
+    padding: 4px 8px;
+    max-height: 300px;
+    overflow: auto;
+}
+
+/* SO stuff */
+img.profileimg {
+    float: left;
+    width: 32px;
+    height: 32px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    vertical-align: top;
+    margin-right: 10px;
+}
+
+[data-link] {
+    cursor: pointer;
+    color: blue;
+    display: inline-block;
+}
+
+.solink {
+    background: url(http://cdn.sstatic.net/stackoverflow/img/sprites.png?v=3c6263c3453b);
+    width: 237px;
+    height: 61px;
+    display: block;
+    background-position: 0 0;
+    margin-bottom: 3em;
+    cursor: pointer;
+}
+
+.linkhover {
+    position: absolute;
+    visibility: collapse;
+    opacity: 0;
+    margin-left: 240px;
+    margin-top: -2em;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    font-weight: normal;
+    color: #777;
+    border-radius: 4px;
+    box-shadow: 2px 1px 12px #ccc;
+    max-width: 400px;
+    transition: all ease-out 0.4s 0s;
+}
+
+.solink:hover .linkhover {
+    visibility: visible;
+    opacity: 1;
+    transition: all ease-in 0.4s 0s;
+}
+
+.objformat div {
+    display:inline-block;
+    width: 5px !important;
+}
