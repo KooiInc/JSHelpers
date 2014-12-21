@@ -55,6 +55,9 @@ function initHelpers() {
   }
   
   function loadCSS() {
+   if (document.querySelector('#HelperCSS')) {
+    return true;
+   }
    var css = document.createElement('link');
    css.href = "https://rawgit.com/KooiInc/Helpers/master/Helpers.css";
    css.type = "text/css";
