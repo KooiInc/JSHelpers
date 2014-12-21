@@ -23,7 +23,8 @@ function initHelpers() {
     report.innerHTML += '<p>' + [].slice.call(arguments).join() + '</p>';
     if (useCustomCss) {
       var rp = document.querySelector('#result:last-child');
-      setTimeout(function () {rp.className = 'fadeIn'}, 100);
+      var to = function () { rp.className = 'fadeIn'; }
+      setTimeout(to, 200);
     }
   }
   
