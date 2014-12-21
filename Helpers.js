@@ -21,7 +21,7 @@ function initHelpers() {
           return r;
         }();
     var entry = document.createElement('p');
-    entry.innerHTML = [].slice.call(arguments).join();
+    entry.innerHTML = [].slice.call(arguments).join('');
     report.appendChild(entry);
     
     if (useCustomCss) {
