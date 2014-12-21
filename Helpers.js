@@ -22,7 +22,7 @@ function initHelpers() {
         }();
     report.innerHTML += '<p>' + [].slice.call(arguments).join() + '</p>';
     if (useCustomCss) {
-      var rp = document.querySelector('#result:last-child');
+      var rp = document.querySelector('#result p:last-child');
       var to = function () { rp.className = 'fadeIn'; }
       setTimeout(to, 200);
     }
