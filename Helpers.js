@@ -26,7 +26,7 @@ function initHelpers() {
     
     if (useCustomCss) {
       var to = function () { entry.className = 'fadeIn'; };
-      setTimeout(to, 200);
+      var dummy = setTimeout(to, 200);
     }
   }
   
