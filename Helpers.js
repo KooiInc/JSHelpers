@@ -4,7 +4,8 @@ var Helpers = (function() {
     report: reportHTML,
     isObj: isPlainObject,
     useJQ: loadJQ,
-    augment: extensions
+    augment: extensions,
+    useCSS: loadCSS
   };
 
   function reportHTML() {
@@ -38,6 +39,14 @@ var Helpers = (function() {
         jq.src    = '//code.jquery.com/jquery-2.1.1.min.js';
         return head.appendChild(jq);
       };
+  }
+  
+  function loadCSS() {
+   var css = document.createElement('link');
+   css.href = "https://rawgit.com/KooiInc/Helpers/master/Helpers.css";
+   css.type = "text/css";
+   css.rel = "stylesheet";
+   document.querySelector('head').appendChild(css);
   }
 
    // a few usefull augments/polyfills
