@@ -1,11 +1,15 @@
  "use strict";
-var Helpers = (function() {
-  return {
+window.addEventListener('load', initHelpers);
+
+function initHelpers() {
+  var useCustomCss = false;
+  
+  window.Helpers = {
     report: reportHTML,
     isObj: isPlainObject,
     useJQ: loadJQ,
     augment: extensions,
-    useCSS: loadCSS
+    useCSS: setCustomCss
   };
 
   function reportHTML() {
@@ -15,8 +19,17 @@ var Helpers = (function() {
           r.id = 'result';
           document.querySelector('body').appendChild(r);
           return r;
-      }();
+        }();
     report.innerHTML += '<p>' + [].slice.call(arguments).join() + '</p>';
+  }
+  
+  function setCustomCss(yn) {
+    useCustomCss = yn;
+    if (useCustomCss) {
+     loadCSS();
+    } else {
+     unloadCSS();
+    }
   }
   
   function isPlainObject(item) {
@@ -46,7 +59,13 @@ var Helpers = (function() {
    css.href = "https://rawgit.com/KooiInc/Helpers/master/Helpers.css";
    css.type = "text/css";
    css.rel = "stylesheet";
+   css.id = "HelperCSS";
    document.querySelector('head').appendChild(css);
+  }
+  
+  function unloadCSS() {
+   var css = document.querySelector('#HelperCSS');
+   void (css && document.querySelector('head').removeChild(css));
   }
 
    // a few usefull augments/polyfills
@@ -210,4 +229,4 @@ var Helpers = (function() {
        return this;
      };
   }
-}());
+};
