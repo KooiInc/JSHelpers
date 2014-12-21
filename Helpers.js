@@ -17,7 +17,7 @@ function initHelpers() {
         function() {
           var r = document.createElement('div');
           r.id = 'result';
-          void(useCustomCss && (r.className = 'fadein'));
+          void(useCustomCss && (r.className = 'fadeIn'));
           document.querySelector('body').appendChild(r);
           return r;
         }();
