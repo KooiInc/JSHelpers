@@ -229,4 +229,4 @@ function initHelpers() {
        return this;
      };
   }
-};
+}
