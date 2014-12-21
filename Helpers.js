@@ -20,8 +20,11 @@ function initHelpers() {
           document.querySelector('body').appendChild(r);
           return r;
         }();
-    report.innerHTML += (useCustomCss ? '<p class="fadeIn">' : '<p>') + 
-                        [].slice.call(arguments).join() + '</p>';
+    report.innerHTML += '<p>' + [].slice.call(arguments).join() + '</p>';
+    if (useCustomCss) {
+      var rp = document.querySelector('#result:last-child');
+      setTimeout(function () {rp.className = 'fadeIn'}, 100);
+    }
   }
   
   function setCustomCss(yn) {
