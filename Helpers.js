@@ -1,8 +1,7 @@
- "use strict";
 Helpers = initHelpers();
-console.log(Helpers);
 
 function initHelpers() {
+  "use strict";
   var useCustomCss = false;
   
   return {
