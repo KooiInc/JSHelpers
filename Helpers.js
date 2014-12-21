@@ -1,10 +1,10 @@
  "use strict";
-window.addEventListener('load', initHelpers);
+window.Helpers = initHelpers();
 
 function initHelpers() {
   var useCustomCss = false;
   
-  window.Helpers = {
+  return {
     report: reportHTML,
     isObj: isPlainObject,
     useJQ: loadJQ,
