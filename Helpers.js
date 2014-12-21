@@ -1,5 +1,6 @@
  "use strict";
 Helpers = initHelpers();
+console.log(Helpers);
 
 function initHelpers() {
   var useCustomCss = false;
