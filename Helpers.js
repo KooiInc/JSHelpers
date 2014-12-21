@@ -1,5 +1,5 @@
  "use strict";
-window.Helpers = initHelpers();
+Helpers = initHelpers();
 
 function initHelpers() {
   var useCustomCss = false;
