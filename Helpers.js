@@ -17,11 +17,11 @@ function initHelpers() {
         function() {
           var r = document.createElement('div');
           r.id = 'result';
-          void(useCustomCss && (r.className = 'fadeIn'));
           document.querySelector('body').appendChild(r);
           return r;
         }();
-    report.innerHTML += '<p>' + [].slice.call(arguments).join() + '</p>';
+    report.innerHTML += (useCustomCss ? '<p class="fadeIn">' : '<p>') + 
+                        [].slice.call(arguments).join() + '</p>';
   }
   
   function setCustomCss(yn) {
