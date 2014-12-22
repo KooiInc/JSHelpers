@@ -246,13 +246,13 @@ function initHelpers(w, d, undefined) {
   function SOInit() {
     setCustomCss(true);
     loadJQ( function () {
-      console.log('are we loading?');
-      $(document).on('mouseover', '.solink', setSOLink );
-      $(document).on('click', '[data-link]', clicklink);
+      $('body').on('mouseover', '.solink', setSOLink );
+      $('body').on('click', '[data-link]', clicklink);
     });
   }
 
   function setSOLink(e) {
+      console.log('are we loaded?');
       if ($(this).attr('data-link')) { return true; }
 
       $.ajax(
