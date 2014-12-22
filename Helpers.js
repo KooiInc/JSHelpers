@@ -359,9 +359,7 @@ function initHelpers(w, d, undefined) {
 
   function args2Array(args){
     var arr = [];
-    for (var i=0;i<args.length;i+=1) {
-      arr.push(args[i]);
-    }
+    while (arr.length < args.length) { arr.push(args[arr.length]); }
     return arr;
   }
 
