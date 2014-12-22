@@ -13,7 +13,7 @@ function initHelpers(w, d, undefined) {
     initSO: SOInit,
     printDirect: printDirect,
     logClear: screenClear,
-    partial: Partial
+    Partial: Partial
   };
 
   function setCustomCss(yn) {
@@ -390,10 +390,10 @@ function initHelpers(w, d, undefined) {
     return el;
   }
 
-  function args2Array(args){
+  function args2Array(args, sliceAt){
     var arr = [];
     while (arr.length < args.length) { arr.push(args[arr.length]); }
-    return arr;
+    return sliceAt ? arr.slice(sliceAt) : arr;
   }
 
   // see: http://codereview.stackexchange.com/questions/23317/istypeobj-gettypeobj-v0/23329#23329
@@ -407,14 +407,14 @@ function initHelpers(w, d, undefined) {
                 || [0,'ANONYMOUS_CONSTRUCTOR']) [1] );
   };
 
-  function Partial (fn) {
-    this.initial = [].slice.call(arguments,1);
-    this.fnp = function () {
-                 return fn.partialx.apply(fn, this.initial);
+  function Partial (func) {
+    this.initial = funcp(arguments, 1);
+    this.funcp = function () {
+                 return func.partialx.apply(func, this.initial);
                 };
     if (!Partial.prototype.x) {
       Partial.prototype.x = function () {
-        return this.fnp().apply(null, [].slice.call(arguments));
+        return this.funcp().apply(null, args2Array(arguments));
       };
     }
   };
