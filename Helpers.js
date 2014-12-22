@@ -1,6 +1,6 @@
-Helpers = initHelpers();
+Helpers = initHelpers(window, document);
 
-function initHelpers() {
+function initHelpers(w, d, undefined) {
   "use strict";
   var useCustomCss = false;
   
