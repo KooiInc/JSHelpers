@@ -48,7 +48,8 @@ function initHelpers(w, d, undefined) {
                       rel: 'stylesheet',
                       id: 'HelperCSS' }
               );
-    return document.querySelector('head').appendChild (css);
+    console.log(css);
+    return d.querySelector('head').appendChild (css);
   }
 
   function unloadCSS() {
@@ -341,10 +342,11 @@ function initHelpers(w, d, undefined) {
       for (var l in props) {
         if (/style/i.test(l)) {
           for (var ll in props[l]) {
-            void(props[l].hasOwnProperty(ll) && (el.style[ll] = props[l][ll]) || void(0));
+            if (props[l].hasOwnProperty(ll))
+              el.style[ll] = props[l][ll];
           }
-        } else {
-          void(props.hasOwnProperty(l) && (el[l] = props[l]) || void(0));
+        } else if (props.hasOwnProperty(l)) {
+            el[l] = props[l];
         }
       }
     }
