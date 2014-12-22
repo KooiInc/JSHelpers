@@ -10,7 +10,8 @@ function initHelpers(w, d, undefined) {
     useJQ: loadJQ,
     useCSS: setCustomCss,
     log2Screen: log2Screen,
-    initSO: SOInit
+    initSO: SOInit.apply,
+    printDirect: printDirect
   };
 
   function setCustomCss(yn) {
@@ -70,14 +71,6 @@ function initHelpers(w, d, undefined) {
           }, {});
         }
 
-        function args2Array(args){
-          var arr = [];
-          for (var i=0;i<args.length;i+=1) {
-            arr.push(args[i]);
-          }
-          return arr;
-        }
-
         function stringformat() {
                 var args = args2Array(arguments);
                 return this.replace(/(\{\d+\})/g, function(a){
@@ -98,7 +91,7 @@ function initHelpers(w, d, undefined) {
         }
 
         String.Format = function(){
-            var args = [].slice.call(arguments);
+            var args = ar(arguments);
             return stringformat.apply(args[0],args.slice(1));
         };
 
@@ -116,7 +109,7 @@ function initHelpers(w, d, undefined) {
 
         // run functions sequentially
         Function.prototype.andThen = function () {
-         var args = [].slice.call(arguments)
+         var args = args2Array(arguments)
             ,next = args.slice(1);
          this();
          return args[0] && next.length
@@ -156,7 +149,7 @@ function initHelpers(w, d, undefined) {
 
         String.concat = function(joinchar){
           joinchar = joinchar || '';
-          return [].slice.call(arguments).join(joinchar);
+          return args2Array(arguments).join(joinchar);
         }
 
         // MDN Array filter polyfill
@@ -291,7 +284,7 @@ function initHelpers(w, d, undefined) {
           return r;
         }();
     var entry = createElementWithProps('p');
-    entry.innerHTML = [].slice.call(arguments).join('');
+    entry.innerHTML = args2Array(arguments).join('');
     report.appendChild(entry);
 
     if (useCustomCss) {
@@ -307,13 +300,12 @@ function initHelpers(w, d, undefined) {
                        var r = createElementWithProps('div', {id: 'result'});
                        document.body.appendChild(r);
                        return r; }()
-                       ,args = [].slice.call(arguments)
-                       ,lastarg = args.slice(-1)[0]
-                       ,optkeys = /clear|clrscr|direct|opts|useopts|continuous/i
-                       ,opts = lastarg instanceof Object
-                               && Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length
-                                ? lastarg.opts instanceof Object ? lastarg.opts : lastarg
-                                : {empty: 1};
+         ,args = args2Array(arguments)
+         ,lastarg = args.slice(-1)[0]
+         ,optkeys = /clear|clrscr|direct|opts|useopts|continuous/i
+         ,opts = isObjLiteral(lastarg) && Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length
+                 ? lastarg.opts instanceof Object ? lastarg.opts : lastarg
+                 : {empty: 1};
       void(!opts.empty && (args = args.slice(0,-1)));
 
       if (opts.clrscr) {
@@ -333,6 +325,10 @@ function initHelpers(w, d, undefined) {
       result.appendChild(p);
       return opts.direct ? (p.className = 'fadeIn')
                          : setTimeout(function () { p.className = 'fadeIn'; }, +opts.timed*1000 || 0);
+  }
+
+  function printDirect() {
+    return log2Screen.apply( null, args2Array(arguments).concat({direct:true}) );
   }
 
   // utilities
@@ -357,6 +353,15 @@ function initHelpers(w, d, undefined) {
   function isObjLiteral(item) {
     return item.constructor === Object;
   }
+
+  function args2Array(args){
+    var arr = [];
+    for (var i=0;i<args.length;i+=1) {
+      arr.push(args[i]);
+    }
+    return arr;
+  }
+
 
   return helperObj
 }
