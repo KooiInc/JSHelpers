@@ -3,33 +3,15 @@ Helpers = initHelpers(window, document);
 function initHelpers(w, d, undefined) {
   "use strict";
   var useCustomCss = false;
+  var extended = extensions();
+
   var helperObj = {
     report: reportHTML,
-    isObj: isPlainObject,
     useJQ: loadJQ,
-    augment: extensions,
     useCSS: setCustomCss,
     log2Screen: log2Screen,
     initSO: SOInit
   };
-
-  function reportHTML() {
-    var report = document.querySelector('#result') ||
-        function() {
-          var r = document.createElement('div');
-          r.id = 'result';
-          document.querySelector('body').appendChild(r);
-          return r;
-        }();
-    var entry = document.createElement('p');
-    entry.innerHTML = [].slice.call(arguments).join('');
-    report.appendChild(entry);
-
-    if (useCustomCss) {
-      var to = function () { entry.className = 'fadeIn'; };
-      var dummy = setTimeout(to, 200);
-    }
-  }
 
   function setCustomCss(yn) {
     useCustomCss = yn;
@@ -40,49 +22,33 @@ function initHelpers(w, d, undefined) {
     }
   }
 
-  function isPlainObject(item) {
-    return (
-        item &&
-        typeof item === "object" &&
-        Object.prototype.toString.call(item) === "object Object" &&
-        !item.nodeType
-    );
-  }
-
   function loadJQ(callback) {
       if (w.jQuery) {
         return callback && callback instanceof Function ? callback() : true;
       }
-      var head  = d.querySelector('head')
-         ,jqel  = d.createElement('script');
 
-      jqel.src    = 'http://code.jquery.com/jquery-2.1.1.min.js';
-      jqel.id     = 'jqloaded';
-      head.appendChild(jqel);
+      var jqel  = createElementWithProps('script', {src: 'http://code.jquery.com/jquery-2.1.1.min.js', id: 'jqloaded'});
+
+      d.querySelector('head').appendChild(jqel);
+
       if (callback && callback instanceof Function)
-          jqel.addEventListener('load', initcb);
-
-      function initcb() {
-        if (!w.jQuery) {
-          setTimeout(initcb, 10);
-        } else {
-          callback();
-        }
-      };
+          jqel.addEventListener('load', callback);
 
       return void(0);
   }
 
   function loadCSS() {
-   if (document.querySelector('#HelperCSS')) {
-    return true;
-   }
-   var css = document.createElement('link');
-   css.href = "https://rawgit.com/KooiInc/Helpers/master/Helpers.css";
-   css.type = "text/css";
-   css.rel = "stylesheet";
-   css.id = "HelperCSS";
-   return document.querySelector('head').appendChild(css);
+    return document.querySelector('#HelperCSS')
+          ? true
+          : document.querySelector('head').appendChild (
+                 createElementWithProps(
+                    'link',
+                    { href: 'https://rawgit.com/KooiInc/Helpers/master/Helpers.css',
+                      type: 'text/css',
+                      rel: 'stylesheet',
+                      id: 'HelperCSS' }
+                 )
+            );
   }
 
   function unloadCSS() {
@@ -92,6 +58,9 @@ function initHelpers(w, d, undefined) {
 
    // a few usefull augments/polyfills
   function extensions() {
+        if (extended) {
+          return true;
+        }
         // remove double values from an array
         function noDoubles(arr) {
           arr = arr || this;
@@ -241,15 +210,18 @@ function initHelpers(w, d, undefined) {
        Array.prototype.frequencies = Array.prototype.frequencies || frequencies;
 
        Array.prototype.each = Array.prototype.each || function (fn,rewrite) {
-       for (var i = 0; i < this.length; i++) {
-        if (rewrite){
-          this[i] = fn(this[i]);
-        } else {
-         fn(this[i]);
-        }
-       }
-       return this;
-     };
+          for (var i = 0; i < this.length; i++) {
+           if (rewrite){
+             this[i] = fn(this[i]);
+           } else {
+            fn(this[i]);
+           }
+          }
+          return this;
+       };
+
+       extended = true;
+       return extended;
   }
 
   // SO specials
@@ -300,19 +272,38 @@ function initHelpers(w, d, undefined) {
       var linkurl = this.getAttribute('data-link')
          ,xlink = document.querySelector('a[href="'+linkurl+'"]') ||
                   function() {
-                      var _link = document.createElement('a');
-                      _link.href = linkurl;
-                      _link.target = '_blank';
-                      _link.style.display = 'none';
+                      var _link = createElementWithProps(
+                                    'a', { href: linkurl, target:'_blank', style: { display: 'none' } }
+                                  );
                       document.body.appendChild(_link);
                       return _link; }();
       xlink.click();
   }
-  // alternative screen log
-  function log2Screen(){
+
+  // Reporting
+  // 1. simple
+  function reportHTML() {
+    var report = document.querySelector('#result') ||
+        function() {
+          var r = createElementWithProps( 'div', {id: 'result'} );
+          document.querySelector('body').appendChild(r);
+          return r;
+        }();
+    var entry = createElementWithProps('p');
+    entry.innerHTML = [].slice.call(arguments).join('');
+    report.appendChild(entry);
+
+    if (useCustomCss) {
+      var to = function () { entry.className = 'fadeIn'; };
+      var dummy = setTimeout(to, 100);
+    }
+  }
+
+  // 2. with parameter object usage
+  function log2Screen() {
       var result = document.querySelector('#result') ||
-                   function () { var r = document.createElement('div');
-                       r.id = 'result';
+                   function () {
+                       var r = createElementWithProps('div', {id: 'result'});
                        document.body.appendChild(r);
                        return r; }()
                        ,args = [].slice.call(arguments)
@@ -336,12 +327,36 @@ function initHelpers(w, d, undefined) {
           return result.innerHTML += args.join('').replace(/\n/g,'<br>');
       }
 
-      var p = document.createElement('p');
+      var p = createElementWithProps('p');
       p.innerHTML = args.join('').replace(/\n/g,'<br>');
       result.appendChild(p);
       return opts.direct ? (p.className = 'fadeIn')
                          : setTimeout(function () { p.className = 'fadeIn'; }, +opts.timed*1000 || 0);
   }
+
+  // utilities
+  function createElementWithProps(elType, props) {
+    var el = d.createElement(elType);
+    if (props && isPlainObject(props)) {
+      for (var l in props) {
+        if (/style/i.test(l)) {
+          for (var ll in props[l]) {
+            void(props[l].hasOwnProperty(ll) && (el.style[ll] = props[l][ll]) || void(0));
+          }
+        } else {
+          void(props.hasOwnProperty(l) && (el[l] = props[l]) || void(0));
+        }
+      }
+    }
+    return el;
+  }
+
+  function isPlainObject(item) {
+    return item && typeof item === "object" &&
+           Object.prototype.toString.call(item) === "object Object" &&
+           !item.nodeType;
+  }
+
 
   return helperObj
 }
