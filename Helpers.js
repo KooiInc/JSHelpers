@@ -38,17 +38,17 @@ function initHelpers(w, d, undefined) {
   }
 
   function loadCSS() {
-    return document.querySelector('#HelperCSS')
-          ? true
-          : document.querySelector('head').appendChild (
-                 createElementWithProps(
+    if (d.querySelector('#HelperCSS')) {
+      return true;
+    }
+    var css = createElementWithProps(
                     'link',
                     { href: 'https://rawgit.com/KooiInc/Helpers/master/Helpers.css',
                       type: 'text/css',
                       rel: 'stylesheet',
                       id: 'HelperCSS' }
-                 )
-            );
+              );
+    return document.querySelector('head').appendChild (css);
   }
 
   function unloadCSS() {
