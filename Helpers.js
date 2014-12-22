@@ -54,10 +54,10 @@ function initHelpers(w, d, undefined) {
         return true;
       }
       return function (cb) {
-        var head  = d.querySelector('head')
+        var head  = d.querySelector('body')
            ,jqel  = d.createElement('script');
 
-        jqel.src    = '//code.jquery.com/jquery-2.1.1.min.js';
+        jqel.src    = 'http://code.jquery.com/jquery-2.1.1.min.js';
         jqel.id     = 'jqloaded';
         head.appendChild(jqel);
         if (cb && cb instanceof Function)
