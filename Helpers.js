@@ -13,7 +13,7 @@ function initHelpers(w, d, undefined) {
     initSO: SOInit
   };
 
-  if (/jsfiddle/i.test(top.location.href)) {
+  if (/jsfiddle/i.test(location.href)) {
     SOInit();
   }
 
