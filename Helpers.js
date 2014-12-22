@@ -10,7 +10,7 @@ function initHelpers(w, d, undefined) {
     useJQ: loadJQ,
     useCSS: setCustomCss,
     log2Screen: log2Screen,
-    initSO: SOInit.apply,
+    initSO: SOInit,
     printDirect: printDirect,
     logClear: screenClear
   };
@@ -50,7 +50,6 @@ function initHelpers(w, d, undefined) {
                       rel: 'stylesheet',
                       id: 'HelperCSS' }
               );
-    console.log(css);
     return d.querySelector('head').appendChild (css);
   }
 
@@ -367,7 +366,6 @@ function initHelpers(w, d, undefined) {
     }
     return arr;
   }
-
 
   return helperObj
 }
