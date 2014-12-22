@@ -91,7 +91,7 @@ function initHelpers(w, d, undefined) {
         }
 
         String.Format = function(){
-            var args = ar(arguments);
+            var args = args2Array(arguments);
             return stringformat.apply(args[0],args.slice(1));
         };
 
