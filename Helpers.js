@@ -109,14 +109,15 @@ function initHelpers(w, d, undefined) {
             return r;
         };
 
-        Number.prototype.toRange = function (fn, startvalue) {
+        Number.prototype.toRange = Number.prototype.toRange || function (fn, startvalue) {
           startvalue = startvalue || 0;
           fn = fn instanceof Function ? fn : function (a,i) { return i+startvalue; };
           return String(new Array(this.valueOf())).split(',').map( fn );
-        }
+        };
 
         Number.prototype.pretty = Number.prototype.pretty || function (usa, noprecision) {
             return sep1000(this, usa, noprecision);
+        };
 
         // run functions sequentially
         Function.prototype.andThen = function () {
@@ -456,7 +457,7 @@ function initHelpers(w, d, undefined) {
                  : obj;
   }
 
-  function sep1000(somenum, usa, noprecision){
+  function sep1000(somenum, usa, noprecision) {
     var dec = (''+somenum).split(/[.,]/)
        ,lendec = dec[1] ? dec[1].length : 0
        ,precision = lendec && !noprecision ? decPrecise(somenum,lendec) : dec[1]
@@ -477,7 +478,6 @@ function initHelpers(w, d, undefined) {
       }
       return n.join('');
     }
-
     return xsep(dec[0],sep) + (dec[1] ? decsep+precision :'');
   }
 
