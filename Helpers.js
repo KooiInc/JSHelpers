@@ -56,10 +56,18 @@ function initHelpers(w, d, undefined) {
       return function (cb) {
         var head  = d.querySelector('head')
            ,jq    = d.createElement('script');
+
         jq.src    = '//code.jquery.com/jquery-2.1.1.min.js';
-        if (cb && cb instanceof Function)
-         jq.onload = cb;
-        return head.appendChild(jq);
+        jq.id     = 'jqloaded';
+        head.appendChild(jq);
+        initcb();
+        function initcb() {
+                if (!w.jQuery) {
+                  setTimeout(initcb, 10);
+                } else {
+                  cb();
+                }
+         };
       };
   }
 
