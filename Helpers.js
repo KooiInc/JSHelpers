@@ -64,215 +64,385 @@ function initHelpers(w, d, undefined) {
 
    // a few usefull augments/polyfills
   function extensions() {
-        if (extended) {
-          return true;
-        }
-        // remove double values from an array
-        function noDoubles(arr) {
-          arr = arr || this;
-          return arr.filter(function(val) {
-           return !this[val] ? ((this[val] = true), true) : false;
-          }, {});
-        }
+      if (extended) {
+        return true;
+      }
+      // remove double values from an array
+      function noDoubles(arr) {
+        arr = arr || this;
+        return arr.filter(function(val) {
+         return !this[val] ? ((this[val] = true), true) : false;
+        }, {});
+      }
 
-        function stringformat() {
-          var args = args2Array(arguments);
-          return this.replace(/(\{\d+\})/g, function(a){
-              return args[+(a.substr(1,a.length-2))||0];
-          });
+      function stringformat() {
+        var args = args2Array(arguments);
+        return this.replace(/(\{\d+\})/g, function(a){
+            return args[+(a.substr(1,a.length-2))||0];
+        });
+      };
+
+      // determine value frequencies in an array
+      function frequencies(arr) {
+        var mapped = {sum: 0};
+        (arr || this).map(function (a){
+            if (!(a in this)) { this[a] = 1; }
+            else { this[a] += 1; }
+            this.sum += 1;
+            return a; }, mapped
+        );
+        return mapped;
+      }
+
+      String.Format = function(){
+        var args = args2Array(arguments);
+        return stringformat.apply(args[0],args.slice(1));
+      };
+
+      String.prototype.format = function () {
+        return stringformat.apply(this,arguments);
+      }
+
+      String.prototype.repeat = function(n){
+        var s = this, r = '';
+        while(n--) {
+            r += s;
+        }
+        return r;
+      };
+
+      Number.prototype.toRange = Number.prototype.toRange || function (fn, startvalue) {
+        startvalue = startvalue || 0;
+        fn = isOfType(fn, Function) ? fn : function (a,i) { return i+startvalue; };
+        return String(new Array(this.valueOf())).split(',').map( fn );
+      };
+
+      Number.prototype.pretty = Number.prototype.pretty || function (usa, noprecision) {
+        return sep1000(this, usa, noprecision);
+      };
+
+      // run functions sequentially
+      Function.prototype.andThen = function () {
+       var args = args2Array(arguments)
+          ,next = args.slice(1);
+       this();
+       return args[0] && next.length
+               ? args[0].andThen.apply(args[0], next)
+               : args.length == 1  ? args[0]()
+               : true;
+      };
+
+      Function.prototype.partial = Function.prototype.partial || function () {
+        var stored_args = [].slice.call(arguments)
+           ,fn = this;
+        return function () {
+           return fn.apply(null, stored_args.concat([].slice.call(arguments)));
         };
+      };
 
-        // determine value frequencies in an array
-        function frequencies(arr) {
-          var mapped = {sum: 0};
-          (arr || this).map(function (a){
-              if (!(a in this)) { this[a] = 1; }
-              else { this[a] += 1; }
-              this.sum += 1;
-              return a; }, mapped
-          );
-          return mapped;
-        }
-
-        String.Format = function(){
-          var args = args2Array(arguments);
-          return stringformat.apply(args[0],args.slice(1));
+      Function.prototype.partialx = function(){
+        var fn = this, args = Array.prototype.slice.call(arguments);
+        return function(){
+          var arg = 0;
+          for ( var i = 0; i < args.length && arg < arguments.length; i++ )
+            if ( args[i] === undefined || args[i] === null)
+              args[i] = arguments[arg++];
+          return fn.apply(this, args);
         };
+      };
 
-        String.prototype.format = function () {
-          return stringformat.apply(this,arguments);
-        }
+      // is character @ [atpos] upperCase?
+      boolean:String.prototype.charIsUpper = function (atpos){
+        var chr = this.charAt(atpos);
+        return /[A-Z]|[\u0080-\u024F]/.test(chr) && chr === chr.toUpperCase();
+      };
 
-        String.prototype.repeat = function(n){
-          var s = this, r = '';
-          while(n--) {
-              r += s;
+      String.prototype.firstUp = function () {
+        return this.slice(0,1).toUpperCase()+this.slice(1).toLowerCase();
+      }
+
+      String.prototype.isValidEmail = function() {
+        // should be sufficient
+        return  /^[\w._-]{1,}[+]?[\w._-]{0,}@[\w.-]+\.[a-zA-Z]{2,6}$/.test(this);
+      }
+
+      Array.prototype.toRE = function (){
+        try { return RegExp.apply(null, this); }
+        catch(e) { return /.*/; }
+      }
+
+      Array.toRE = function(arr) {
+        return ([].toRE.call(arr));
+      }
+
+      Array.prototype.toCheckboxValues = Array.prototype.toCheckboxValues || function (checked) {
+        checked = checked || [];
+        var cbxs = [];
+        this.map(function (a, i) {
+                   cbxs.push({check: checked.indexOf(i)>-1 ? 1 : 0, val: String(a)});
+                  }, cbxs);
+        return cbxs;
+      };
+
+      String.prototype.reCleanup = function(encodeHTML){
+        var str = encodeHTML ? this.replace(/[\u0080-\u024F]/g, function(a) {return '&#'+a.charCodeAt(0)+';';}) : this;
+        return str.replace(/[?*|.+$\/]|\\/g, function(c) {return c==='\\' ? '' : '\\\\'+c;});
+      }
+
+      String.concat = function(joinchar){
+        joinchar = joinchar || '';
+        return args2Array(arguments).join(joinchar);
+      }
+
+      // MDN Array filter polyfill
+      if (!Array.prototype.filter) {
+        Array.prototype.filter = function(fun)
+        {
+          if (this === void 0 || this === null)
+            throw new TypeError();
+
+          var t = Object(this);
+          var len = t.length >>> 0;
+          if (typeof fun != "function")
+            throw new TypeError();
+
+          var res = [];
+          var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+          for (var i = 0; i < len; i++) {
+            if (i in t)  {
+              var val = t[i];
+              if (fun.call(thisArg, val, i, t))
+                res.push(val);
+            }
           }
-          return r;
+
+          return res;
         };
+      }
 
-        Number.prototype.toRange = Number.prototype.toRange || function (fn, startvalue) {
-          startvalue = startvalue || 0;
-          fn = isOfType(fn, Function) ? fn : function (a,i) { return i+startvalue; };
-          return String(new Array(this.valueOf())).split(',').map( fn );
-        };
+      // MDN Array map polyfill
+      if (!Array.prototype.map) {
+        Array.prototype.map = function(fun)
+        {
+          if (this === void 0 || this === null)
+            throw new TypeError();
 
-        Number.prototype.pretty = Number.prototype.pretty || function (usa, noprecision) {
-          return sep1000(this, usa, noprecision);
-        };
+          var t = Object(this);
+          var len = t.length >>> 0;
+          if (typeof fun !== "function")
+            throw new TypeError();
 
-        // run functions sequentially
-        Function.prototype.andThen = function () {
-         var args = args2Array(arguments)
-            ,next = args.slice(1);
-         this();
-         return args[0] && next.length
-                 ? args[0].andThen.apply(args[0], next)
-                 : args.length == 1  ? args[0]()
-                 : true;
-        };
+          var res = new Array(len);
+          var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+          for (var i = 0; i < len; i++) {
+            if (i in t)
+              res[i] = fun.call(thisArg, t[i], i, t);
+          }
 
-        Function.prototype.partial = Function.prototype.partial || function () {
-          var stored_args = [].slice.call(arguments)
-             ,fn = this;
-          return function () {
-             return fn.apply(null, stored_args.concat([].slice.call(arguments)));
-          };
-        };
+          return res;
+      };
+     }
 
-        Function.prototype.partialx = function(){
-          var fn = this, args = Array.prototype.slice.call(arguments);
-          return function(){
-            var arg = 0;
-            for ( var i = 0; i < args.length && arg < arguments.length; i++ )
-              if ( args[i] === undefined || args[i] === null)
-                args[i] = arguments[arg++];
-            return fn.apply(this, args);
-          };
-        };
+     Array.prototype.uniquify = noDoubles;
 
-        // is character @ [atpos] upperCase?
-        boolean:String.prototype.charIsUpper = function (atpos){
-          var chr = this.charAt(atpos);
-          return /[A-Z]|[\u0080-\u024F]/.test(chr) && chr === chr.toUpperCase();
-        };
+     Array.prototype.frequencies = Array.prototype.frequencies || frequencies;
 
-        String.prototype.firstUp = function () {
-          return this.slice(0,1).toUpperCase()+this.slice(1).toLowerCase();
-        }
-
-        String.prototype.isValidEmail = function() {
-          // should be sufficient
-          return  /^[\w._-]{1,}[+]?[\w._-]{0,}@[\w.-]+\.[a-zA-Z]{2,6}$/.test(this);
-        }
-
-        Array.prototype.toRE = function (){
-          try { return RegExp.apply(null, this); }
-          catch(e) { return /.*/; }
-        }
-
-        Array.toRE = function(arr) {
-          return ([].toRE.call(arr));
-        }
-
-        Array.prototype.toCheckboxValues = Array.prototype.toCheckboxValues || function (checked) {
-          checked = checked || [];
-          var cbxs = [];
-          this.map(function (a, i) {
-                     cbxs.push({check: checked.indexOf(i)>-1 ? 1 : 0, val: String(a)});
-                    }, cbxs);
-          return cbxs;
-        };
-
-        String.prototype.reCleanup = function(encodeHTML){
-          var str = encodeHTML ? this.replace(/[\u0080-\u024F]/g, function(a) {return '&#'+a.charCodeAt(0)+';';}) : this;
-          return str.replace(/[?*|.+$\/]|\\/g, function(c) {return c==='\\' ? '' : '\\\\'+c;});
-        }
-
-        String.concat = function(joinchar){
-          joinchar = joinchar || '';
-          return args2Array(arguments).join(joinchar);
-        }
-
-        // MDN Array filter polyfill
-        if (!Array.prototype.filter) {
-          Array.prototype.filter = function(fun)
-          {
-            if (this === void 0 || this === null)
-              throw new TypeError();
-
-            var t = Object(this);
-            var len = t.length >>> 0;
-            if (typeof fun != "function")
-              throw new TypeError();
-
-            var res = [];
-            var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-            for (var i = 0; i < len; i++) {
-              if (i in t)  {
-                var val = t[i];
-                if (fun.call(thisArg, val, i, t))
-                  res.push(val);
-              }
-            }
-
-            return res;
-          };
-        }
-
-        // MDN Array map polyfill
-        if (!Array.prototype.map) {
-          Array.prototype.map = function(fun)
-          {
-            if (this === void 0 || this === null)
-              throw new TypeError();
-
-            var t = Object(this);
-            var len = t.length >>> 0;
-            if (typeof fun !== "function")
-              throw new TypeError();
-
-            var res = new Array(len);
-            var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-            for (var i = 0; i < len; i++) {
-              if (i in t)
-                res[i] = fun.call(thisArg, t[i], i, t);
-            }
-
-            return res;
-        };
+     Array.prototype.each = Array.prototype.each || function (fn,rewrite) {
+      for (var i = 0; i < this.length; i++) {
+       if (rewrite){
+         this[i] = fn(this[i]);
+       } else {
+        fn(this[i]);
        }
+      }
+      return this;
+     };
 
-       Array.prototype.uniquify = noDoubles;
+     // statics
+     Object.print = function (obj, space) {
+      space = space || '  ';
+      return '<pre class="code">'+JSON.stringify(obj, null, space)+'</pre>';
+     }
 
-       Array.prototype.frequencies = Array.prototype.frequencies || frequencies;
+     Object.format = function (obj, space) {
+      space = space || '  ';
+      return '<div class="objformat">'+JSON.stringify(obj, null, space)+'</div>';
+     }
 
-       Array.prototype.each = Array.prototype.each || function (fn,rewrite) {
-        for (var i = 0; i < this.length; i++) {
-         if (rewrite){
-           this[i] = fn(this[i]);
-         } else {
-          fn(this[i]);
+     Object.isOneOf = isOfType;
+
+
+    //simple date extenter
+    if (!Date.prototype.add) {
+      (function() {
+        var fragments     = {
+                              'd' : 'Date'
+                             ,'m' : 'Month'
+                             ,'y' : 'FullYear'
+                             ,'h' : 'Hours'
+                             ,'mi': 'Minutes'
+                             ,'s' : 'Seconds'
+                             ,'ms': 'MilliSeconds'
+                             ,get: function(frag,get){ return get && 'get'+this[frag] || 'set'+this[frag]; }
+             }
+            ,weekdays     = {
+                             NL: toEnum(('zondag,maandag,dinsdag,woensdag,donderdag,' +
+                                    'vrijdag,zaterdag').split(','))
+                            ,EN:  toEnum(('sunday,monday,tuesday,wednesday,thursday,' +
+                                    'friday,saturday').split(','))
+                            }
+            ,months       = {
+                             NL: toEnum(('januari,februari,maart,april,mei,juni,juli,' +
+                                    'augustus,september,oktober,' +
+                                    'november,december').split(',')),
+                             EN: toEnum(('january,february,march,april,may,june,july,' +
+                                    'august,september,october,' +
+                                    'november,december').split(','))
+                            }
+            ,weekdayshort = {
+                             NL: toEnum(('zo,ma,di,wo,do,vr,za').split(',')),
+                             EN: toEnum(('su,mo,tu,we,th,fr,sa').split(','))
+                            }
+            ,monthshort   = {
+                             NL: toEnum(('jan,feb,mrt,apr,mei,jun,jul,' +
+                                    'aug,sep,okt,nov,dec').split(',')),
+                             EN: toEnum(('jan,feb,mrch,apr,may,jun,jul,' +
+                                    'aug,sep,okt,nov,dec').split(','))
+                            }
+        ;
+
+        function toEnum(valArr) {
+          var l = valArr.length, ret = { byArr: valArr };
+          while (--l) {
+            ret[valArr[l]] = l;
+          }
+          return ret;
+        }
+
+        function setCurrentValues(){
+          this.cd   = this.getDate();
+          this.cm   = this.getMonth()+1;
+          this.cy   = this.getFullYear();
+          this.ch   = this.getHours()  || Number(0);
+          this.cmin = this.getMinutes() || Number(0);
+          this.cs   = this.getSeconds() || Number(0);
+          this.cms  = this.getMilliseconds() || Number(0);
+          this.dow  = this.getDay() || Number(0);
+        }
+
+        function dateset(f,val){
+          val = Number(val);
+          val -= f === 'm' && 1 || 0; //RK why again did we do this?
+          f = fragments.get(f);
+          this[f](val);
+          setCurrentValues.call(this);
+          return this;
+        }
+
+        function dateAddByObj(args,utc){
+          // default: seconds if args is a number
+          if (+args) { return this.setSeconds(this.getSeconds()+(+args)); }
+          utc = utc && 'UTC' || '';
+          var  self = this
+              ,add  = function (label, v) {
+                       label = label && label.slice(0,1).toUpperCase()+label.slice(1).toLowerCase() || '';
+                       label = /Fullyear/.test(label) && 'FullYear' || label;
+                       return self['set'+utc+label] && self['set'+utc+label](self['get'+utc+label]()+v) || self;
+                      };
+          for (var l in args){ add(l, +args[l]) }
+          return this;
+        }
+
+        function dateadd(f,val){
+          if (f instanceof Object) {
+           return dateAddByObj.call(this,f);
+          }
+          val = Number(val) || 1;
+          var sf = fragments.get(f)
+             ,gf = fragments.get(f,1);
+          this[sf](this[gf]()+val);
+          setCurrentValues.call(this);
+          return this;
+        }
+
+        function d2frags(dat) {
+          dat = dat || this;
+          dat.cy || setCurrentValues.call(dat);
+          var  lang = dat.language || 'EN'
+              ,base = {
+                  yyyy: dat.cy
+                , m:    dat.cm
+                , d:    dat.cd
+                , h:    dat.ch
+                , min:  dat.cmin
+                , s:    dat.cs
+                , ms:   dat.cms
+                , dow:  dat.dow
+               }
+              ,ext = {
+                  mm:  base.m.padLeft()
+                , dd:  base.d.padLeft()
+                , hh:  base.h.padLeft()
+                , mi:  base.min.padLeft()
+                , ss:  base.s.padLeft()
+                , mss: base.ms.padLeft(3)
+                , M:   monthshort[lang].byArr[base.m - 1]
+                , MM:  months[lang].byArr[base.m - 1]
+                , wd:  weekdayshort[lang].byArr[base.dow]
+                , WD:  weekdays[lang].byArr[base.dow]
+                , WDU:  weekdays[lang].byArr[base.dow].firstUp()
+               }
+              ,regExBuild = []
+          ;
+
+          for (var l in ext) {
+            if (ext.hasOwnProperty(l)) {
+              base[l] = ext[l];
+            }
+          }
+          for (var l in base) {
+            if (base.hasOwnProperty(l)) {
+              regExBuild.push('(\\b' + l + '\\b)');
+            }
+          }
+          base.re = new RegExp(regExBuild.join('|'), 'g');
+          return base;
+        }
+
+        function padLeft(base, chr) {
+          var len = (String(base || 10).length - String(this).length) + 1;
+          return len > 0 ? new Array(len).join(chr || '0') + this : this;
          }
+
+        // alternative
+        function padLeftZero(len){
+          var self = this+'';
+          return (Math.pow( 10, (len || 2)-self.length) + self).slice(1);
         }
-        return this;
-       };
 
-       // statics
-       Object.print = function (obj, space) {
-        space = space || '  ';
-        return '<pre class="code">'+JSON.stringify(obj, null, space)+'</pre>';
-       }
+        function format(fstr) {
+          fstr = fstr || this.strformat || 'yyyy/mm/dd hh:mi:ss';
+          var dd = d2frags.call(this);
+          return fstr.replace(dd.re, function (a) { return dd[a]; })
+                     .replace(/~/g, '');
+        }
 
-       Object.format = function (obj, space) {
-        space = space || '  ';
-        return '<div class="objformat">'+JSON.stringify(obj, null, space)+'</div>';
-       }
+        function chngLang(lang) {
+         this.language = /^[EN][NL]$/i.test(lang) && lang.toUpperCase() || 'NL';
+         return this;
+        }
 
-       Object.isOneOf = isOfType;
+        Number.prototype.padLeft = padLeftZero;
+        Date.prototype.setFormat = function(f){this.strformat = f; return this;}
+        Date.prototype.changeLanguage = chngLang;
+        Date.prototype.set = dateset;
+        Date.prototype.add = dateadd;
+        Date.prototype.format = format;
+      }());
+     }
 
-       extended = true;
-       return extended;
+     extended = true;
+     return extended;
   }
 
   // SO specials
