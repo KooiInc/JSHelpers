@@ -258,8 +258,8 @@ function initHelpers(w, d, undefined) {
     setCustomCss(true);
     loadJQ( jqcallback(setSOLink, clicklink) );
 
-    function jqcallback() {
-      return function(setlink, clck) {
+    function jqcallback(setlink, clck) {
+      return function () {
        $(document).on('mouseover', '.solink',  setlink);
        $(document).on('click', '[data-link]', clck);
       }
