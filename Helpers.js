@@ -226,7 +226,7 @@ function initHelpers(w, d, undefined) {
             space = space || '  ';
             return '<div class="objformat">'+JSON.stringify(obj, null, space)+'</div>';
        }
-       
+
        Object.isOneOf = isOfType;
 
        extended = true;
@@ -318,7 +318,7 @@ function initHelpers(w, d, undefined) {
          ,args = args2Array(arguments)
          ,lastarg = args.slice(-1)[0]
          ,optkeys = /clear|clrscr|direct|opts|useopts|continuous/i
-         ,opts = isObjLiteral(lastarg) && Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length
+         ,opts = Object.isOneOf(lastarg, Object) && Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length
                  ? lastarg.opts instanceof Object ? lastarg.opts : lastarg
                  : {empty: 1};
       void(!opts.empty && (args = args.slice(0,-1)));
