@@ -260,7 +260,7 @@ function initHelpers(w, d, undefined) {
     setCustomCss(true);
     var solink = d.querySelector('[data-linkid]')
     if (!solink.querySelector('.linkhover')) {
-      solink.appendChild(createElementWithProps('div', { className: 'linkhover' } ));
+      solink.appendChild(createElementWithProps('div', { className: 'linkhover', 'data-dyn': 'true' } ));
     }
     loadJQ( jqcallback );
 
