@@ -11,7 +11,8 @@ function initHelpers(w, d, undefined) {
     useCSS: setCustomCss,
     log2Screen: log2Screen,
     initSO: SOInit.apply,
-    printDirect: printDirect
+    printDirect: printDirect,
+    logClear: screenClear
   };
 
   function setCustomCss(yn) {
@@ -329,6 +330,11 @@ function initHelpers(w, d, undefined) {
 
   function printDirect() {
     return log2Screen.apply( null, args2Array(arguments).concat({direct:true}) );
+  }
+
+  function screenClear() {
+      var res = document.querySelector('#result');
+      return  res && (res.innerHTML = '') || true;
   }
 
   // utilities
