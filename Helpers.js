@@ -3,8 +3,7 @@ Helpers = initHelpers(window, document);
 function initHelpers(w, d, undefined) {
   "use strict";
   var useCustomCss = false;
-  
-  return {
+  var helperObj = {
     report: reportHTML,
     isObj: isPlainObject,
     useJQ: loadJQ,
@@ -25,13 +24,13 @@ function initHelpers(w, d, undefined) {
     var entry = document.createElement('p');
     entry.innerHTML = [].slice.call(arguments).join('');
     report.appendChild(entry);
-    
+
     if (useCustomCss) {
       var to = function () { entry.className = 'fadeIn'; };
       var dummy = setTimeout(to, 200);
     }
   }
-  
+
   function setCustomCss(yn) {
     useCustomCss = yn;
     if (useCustomCss) {
@@ -40,7 +39,7 @@ function initHelpers(w, d, undefined) {
      unloadCSS();
     }
   }
-  
+
   function isPlainObject(item) {
     return (
         item &&
@@ -59,11 +58,11 @@ function initHelpers(w, d, undefined) {
            ,jq    = d.createElement('script');
         jq.src    = '//code.jquery.com/jquery-2.1.1.min.js';
         if (cb && cb instanceof Function)
-         jq.addEventListener('load',cb);
+         jq.onload = cb;
         return head.appendChild(jq);
       };
   }
-  
+
   function loadCSS() {
    if (document.querySelector('#HelperCSS')) {
     return true;
@@ -73,9 +72,9 @@ function initHelpers(w, d, undefined) {
    css.type = "text/css";
    css.rel = "stylesheet";
    css.id = "HelperCSS";
-   document.querySelector('head').appendChild(css);
+   return document.querySelector('head').appendChild(css);
   }
-  
+
   function unloadCSS() {
    var css = document.querySelector('#HelperCSS');
    void (css && document.querySelector('head').removeChild(css));
@@ -83,14 +82,14 @@ function initHelpers(w, d, undefined) {
 
    // a few usefull augments/polyfills
   function extensions() {
-        // remove double values from an array  
+        // remove double values from an array
         function noDoubles(arr) {
           arr = arr || this;
           return arr.filter(function(val) {
            return !this[val] ? ((this[val] = true), true) : false;
           }, {});
         }
-  
+
         function args2Array(args){
           var arr = [];
           for (var i=0;i<args.length;i+=1) {
@@ -98,14 +97,14 @@ function initHelpers(w, d, undefined) {
           }
           return arr;
         }
-  
+
         function stringformat() {
                 var args = args2Array(arguments);
                 return this.replace(/(\{\d+\})/g, function(a){
                     return args[+(a.substr(1,a.length-2))||0];
                 });
         };
-  
+
         // determine value frequencies in an array
         function frequencies(arr) {
           var mapped = {sum: 0};
@@ -117,16 +116,16 @@ function initHelpers(w, d, undefined) {
           );
           return mapped;
         }
-  
+
         String.Format = function(){
             var args = [].slice.call(arguments);
             return stringformat.apply(args[0],args.slice(1));
         };
-  
+
         String.prototype.format = function () {
           return stringformat.apply(this,arguments);
         }
-  
+
         String.prototype.repeat = function(n){
             var s = this, r = '';
             while(n--) {
@@ -134,7 +133,7 @@ function initHelpers(w, d, undefined) {
             }
             return r;
         };
-  
+
         // run functions sequentially
         Function.prototype.andThen = function () {
          var args = [].slice.call(arguments)
@@ -145,53 +144,53 @@ function initHelpers(w, d, undefined) {
                  : args.length == 1  ? args[0]()
                  : true;
         };
-  
+
         // is character @ [atpos] upperCase?
         boolean:String.prototype.charIsUpper = function (atpos){
           var chr = this.charAt(atpos);
           return /[A-Z]|[\u0080-\u024F]/.test(chr) && chr === chr.toUpperCase();
         };
-  
+
         String.prototype.firstUp = function () {
           return this.slice(0,1).toUpperCase()+this.slice(1).toLowerCase();
         }
-  
+
         String.prototype.isValidEmail = function() {
           // should be sufficient
           return  /^[\w._-]{1,}[+]?[\w._-]{0,}@[\w.-]+\.[a-zA-Z]{2,6}$/.test(this);
         }
-  
+
         Array.prototype.toRE = function (){
           try { return RegExp.apply(null, this); }
           catch(e) { return /.*/; }
         }
-  
+
         Array.toRE = function(arr) {
           return ([].toRE.call(arr));
         }
-  
+
         String.prototype.reCleanup = function(encodeHTML){
           var str = encodeHTML ? this.replace(/[\u0080-\u024F]/g, function(a) {return '&#'+a.charCodeAt(0)+';';}) : this;
           return str.replace(/[?*|.+$\/]|\\/g, function(c) {return c==='\\' ? '' : '\\\\'+c;});
         }
-  
+
         String.concat = function(joinchar){
           joinchar = joinchar || '';
           return [].slice.call(arguments).join(joinchar);
         }
-  
+
         // MDN Array filter polyfill
         if (!Array.prototype.filter) {
           Array.prototype.filter = function(fun)
           {
             if (this === void 0 || this === null)
               throw new TypeError();
-  
+
             var t = Object(this);
             var len = t.length >>> 0;
             if (typeof fun != "function")
               throw new TypeError();
-  
+
             var res = [];
             var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
             for (var i = 0; i < len; i++) {
@@ -201,36 +200,36 @@ function initHelpers(w, d, undefined) {
                   res.push(val);
               }
             }
-  
+
             return res;
           };
         }
-  
+
         // MDN Array map polyfill
         if (!Array.prototype.map) {
           Array.prototype.map = function(fun)
           {
             if (this === void 0 || this === null)
               throw new TypeError();
-  
+
             var t = Object(this);
             var len = t.length >>> 0;
             if (typeof fun !== "function")
               throw new TypeError();
-  
+
             var res = new Array(len);
             var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
             for (var i = 0; i < len; i++) {
               if (i in t)
                 res[i] = fun.call(thisArg, t[i], i, t);
             }
-  
+
             return res;
         };
        }
        Array.prototype.uniquify = noDoubles;
        Array.prototype.frequencies = Array.prototype.frequencies || frequencies;
-  
+
        Array.prototype.each = Array.prototype.each || function (fn,rewrite) {
        for (var i = 0; i < this.length; i++) {
         if (rewrite){
@@ -242,16 +241,16 @@ function initHelpers(w, d, undefined) {
        return this;
      };
   }
-  
+
   // SO specials
   function SOInit() {
     setCustomCss(true);
     loadJQ(function () {
       $(document).on('mouseover', '.solink', setSOLink );
-      $(document).on('click', '[data-link]', clicklink);  
+      $(document).on('click', '[data-link]', clicklink);
     });
   }
-  
+
   function setSOLink(e) {
       if ($(this).attr('data-link')) { return true; }
 
@@ -296,7 +295,7 @@ function initHelpers(w, d, undefined) {
                       return _link; }();
       xlink.click();
   }
-  // alternative screen log  
+  // alternative screen log
   function log2Screen(){
       var result = document.querySelector('#result') ||
                    function () { var r = document.createElement('div');
@@ -327,7 +326,9 @@ function initHelpers(w, d, undefined) {
       var p = document.createElement('p');
       p.innerHTML = args.join('').replace(/\n/g,'<br>');
       result.appendChild(p);
-      return opts.direct ? (p.className = 'fadeIn') 
+      return opts.direct ? (p.className = 'fadeIn')
                          : setTimeout(function () { p.className = 'fadeIn'; }, +opts.timed*1000 || 0);
   }
+
+  return helperObj
 }
