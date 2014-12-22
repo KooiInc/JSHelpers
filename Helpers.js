@@ -258,6 +258,10 @@ function initHelpers(w, d, undefined) {
   function SOInit() {
     extensions();
     setCustomCss(true);
+    var solink = d.querySelector('[data-linkid]')
+    if (!solink.querySelector('.linkhover')) {
+      solink.appendChild(createElementWithProps('div', { className: 'linkhover' } ));
+    }
     loadJQ( jqcallback );
 
     function jqcallback() {
