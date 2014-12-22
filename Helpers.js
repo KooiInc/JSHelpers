@@ -13,6 +13,10 @@ function initHelpers(w, d, undefined) {
     initSO: SOInit
   };
 
+  if (/jsfiddle/i.test(top.location.href)) {
+    SOInit();
+  }
+
   function reportHTML() {
     var report = document.querySelector('#result') ||
         function() {
