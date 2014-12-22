@@ -32,7 +32,8 @@ function initHelpers(w, d, undefined) {
         return callback && callback instanceof Function ? callback() : true;
       }
 
-      var jqel  = createElementWithProps('script', {src: 'http://code.jquery.com/jquery-2.1.1.min.js', id: 'jqloaded'});
+      var jqel  = createElementWithProps( 'script',
+                                          { src: 'http://code.jquery.com/jquery-2.1.1.min.js', id: 'jqloaded' } );
 
       d.querySelector('head').appendChild(jqel);
 
@@ -75,10 +76,10 @@ function initHelpers(w, d, undefined) {
         }
 
         function stringformat() {
-                var args = args2Array(arguments);
-                return this.replace(/(\{\d+\})/g, function(a){
-                    return args[+(a.substr(1,a.length-2))||0];
-                });
+          var args = args2Array(arguments);
+          return this.replace(/(\{\d+\})/g, function(a){
+              return args[+(a.substr(1,a.length-2))||0];
+          });
         };
 
         // determine value frequencies in an array
@@ -94,8 +95,8 @@ function initHelpers(w, d, undefined) {
         }
 
         String.Format = function(){
-            var args = args2Array(arguments);
-            return stringformat.apply(args[0],args.slice(1));
+          var args = args2Array(arguments);
+          return stringformat.apply(args[0],args.slice(1));
         };
 
         String.prototype.format = function () {
@@ -103,21 +104,21 @@ function initHelpers(w, d, undefined) {
         }
 
         String.prototype.repeat = function(n){
-            var s = this, r = '';
-            while(n--) {
-                r += s;
-            }
-            return r;
+          var s = this, r = '';
+          while(n--) {
+              r += s;
+          }
+          return r;
         };
 
         Number.prototype.toRange = Number.prototype.toRange || function (fn, startvalue) {
           startvalue = startvalue || 0;
-          fn = fn instanceof Function ? fn : function (a,i) { return i+startvalue; };
+          fn = isOfType(fn, Function) ? fn : function (a,i) { return i+startvalue; };
           return String(new Array(this.valueOf())).split(',').map( fn );
         };
 
         Number.prototype.pretty = Number.prototype.pretty || function (usa, noprecision) {
-            return sep1000(this, usa, noprecision);
+          return sep1000(this, usa, noprecision);
         };
 
         // run functions sequentially
@@ -132,22 +133,22 @@ function initHelpers(w, d, undefined) {
         };
 
         Function.prototype.partial = Function.prototype.partial || function () {
-             var stored_args = [].slice.call(arguments)
-                ,fn = this;
-            return function () {
-                return fn.apply(null, stored_args.concat([].slice.call(arguments)));
-             };
+          var stored_args = [].slice.call(arguments)
+             ,fn = this;
+          return function () {
+             return fn.apply(null, stored_args.concat([].slice.call(arguments)));
+          };
         };
 
         Function.prototype.partialx = function(){
-            var fn = this, args = Array.prototype.slice.call(arguments);
-            return function(){
-              var arg = 0;
-              for ( var i = 0; i < args.length && arg < arguments.length; i++ )
-                if ( args[i] === undefined || args[i] === null)
-                  args[i] = arguments[arg++];
-              return fn.apply(this, args);
-            };
+          var fn = this, args = Array.prototype.slice.call(arguments);
+          return function(){
+            var arg = 0;
+            for ( var i = 0; i < args.length && arg < arguments.length; i++ )
+              if ( args[i] === undefined || args[i] === null)
+                args[i] = arguments[arg++];
+            return fn.apply(this, args);
+          };
         };
 
         // is character @ [atpos] upperCase?
@@ -247,25 +248,25 @@ function initHelpers(w, d, undefined) {
        Array.prototype.frequencies = Array.prototype.frequencies || frequencies;
 
        Array.prototype.each = Array.prototype.each || function (fn,rewrite) {
-          for (var i = 0; i < this.length; i++) {
-           if (rewrite){
-             this[i] = fn(this[i]);
-           } else {
-            fn(this[i]);
-           }
-          }
-          return this;
+        for (var i = 0; i < this.length; i++) {
+         if (rewrite){
+           this[i] = fn(this[i]);
+         } else {
+          fn(this[i]);
+         }
+        }
+        return this;
        };
 
        // statics
        Object.print = function (obj, space) {
-            space = space || '  ';
-            return '<pre class="code">'+JSON.stringify(obj, null, space)+'</pre>';
+        space = space || '  ';
+        return '<pre class="code">'+JSON.stringify(obj, null, space)+'</pre>';
        }
 
        Object.format = function (obj, space) {
-            space = space || '  ';
-            return '<div class="objformat">'+JSON.stringify(obj, null, space)+'</div>';
+        space = space || '  ';
+        return '<div class="objformat">'+JSON.stringify(obj, null, space)+'</div>';
        }
 
        Object.isOneOf = isOfType;
@@ -294,18 +295,18 @@ function initHelpers(w, d, undefined) {
       if ($(this).attr('data-link')) { return true; }
 
       $.ajax(
-          {
-              url: 'http://www.nicon.nl/node/stackx/questionx',
-              data: {qid: $('.solink').first().attr('data-linkid')},
-              method: 'post',
-              success: SOcb
-          }
+        {
+            url: 'http://www.nicon.nl/node/stackx/questionx',
+            data: {qid: $('.solink').first().attr('data-linkid')},
+            method: 'post',
+            success: SOcb
+        }
       );
 
       function SOcb(data) {
           var resp = data.items && data.items[0] || data
-          ,linkelement = $('.solink').first()
-          ,linktip = linkelement.find('.linkhover').first()
+             ,linkelement = $('.solink').first()
+             ,linktip = linkelement.find('.linkhover').first()
           ;
           linktip.html(
               'Click logo to view the related question:<p><h3>' + resp.title + '</h3></p>' +
@@ -322,16 +323,16 @@ function initHelpers(w, d, undefined) {
 
   // firefox needs a link added to the DOM, Chrome, IE don't
   function clicklink(e) {
-      e.stopPropagation(); //just this link
-      var linkurl = this.getAttribute('data-link')
-         ,xlink = document.querySelector('a[href="'+linkurl+'"]') ||
-                  function() {
-                      var _link = createElementWithProps(
-                                    'a', { href: linkurl, target:'_blank', style: { display: 'none' } }
-                                  );
-                      document.body.appendChild(_link);
-                      return _link; }();
-      xlink.click();
+    e.stopPropagation(); //just this link
+    var linkurl = this.getAttribute('data-link')
+       ,xlink = document.querySelector('a[href="'+linkurl+'"]') ||
+                function() {
+                    var _link = createElementWithProps(
+                                  'a', { href: linkurl, target:'_blank', style: { display: 'none' } }
+                                );
+                    document.body.appendChild(_link);
+                    return _link; }();
+    xlink.click();
   }
 
   // Reporting
@@ -355,36 +356,37 @@ function initHelpers(w, d, undefined) {
 
   // 2. with parameter object usage
   function log2Screen() {
-      var result = document.querySelector('#result') ||
-                   function () {
-                       var r = createElementWithProps('div', {id: 'result'});
-                       document.body.appendChild(r);
-                       return r; }()
-         ,args = args2Array(arguments)
-         ,lastarg = args.slice(-1)[0]
-         ,optkeys = /clear|clrscr|direct|opts|useopts|continuous/i
-         ,opts = Object.isOneOf(lastarg, Object) && Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length
-                 ? lastarg.opts instanceof Object ? lastarg.opts : lastarg
-                 : {empty: 1};
-      void(!opts.empty && (args = args.slice(0,-1)));
+    var result = document.querySelector('#result') ||
+                 function () {
+                     var r = createElementWithProps('div', {id: 'result'});
+                     document.body.appendChild(r);
+                     return r; }()
+       ,args = args2Array(arguments)
+       ,lastarg = args.slice(-1)[0]
+       ,optkeys = /clear|clrscr|direct|opts|useopts|continuous/i
+       ,opts = Object.isOneOf(lastarg, Object) &&
+               Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length
+                ? lastarg.opts instanceof Object ? lastarg.opts : lastarg
+                : {empty: 1};
+    void(!opts.empty && (args = args.slice(0,-1)));
 
-      if (opts.clrscr) {
-          return result.innerHTML = '';
-      }
+    if (opts.clrscr) {
+        return result.innerHTML = '';
+    }
 
-      if (opts.clear) {
-          result.innerHTML = '';
-      }
+    if (opts.clear) {
+        result.innerHTML = '';
+    }
 
-      if (opts.continuous) {
-          return result.innerHTML += args.join('').replace(/\n/g,'<br>');
-      }
+    if (opts.continuous) {
+        return result.innerHTML += args.join('').replace(/\n/g,'<br>');
+    }
 
-      var p = createElementWithProps('p');
-      p.innerHTML = args.join('').replace(/\n/g,'<br>');
-      result.appendChild(p);
-      return opts.direct ? (p.className = 'fadeIn')
-                         : setTimeout(function () { p.className = 'fadeIn'; }, +opts.timed*1000 || 0);
+    var p = createElementWithProps('p');
+    p.innerHTML = args.join('').replace(/\n/g,'<br>');
+    result.appendChild(p);
+    return opts.direct ? (p.className = 'fadeIn')
+                       : setTimeout(function () { p.className = 'fadeIn'; }, +opts.timed*1000 || 0);
   }
 
   function printDirect() {
@@ -392,8 +394,8 @@ function initHelpers(w, d, undefined) {
   }
 
   function screenClear() {
-      var res = d.querySelector('#result');
-      return  res && (res.innerHTML = '') || true;
+    var res = d.querySelector('#result');
+    return  res && (res.innerHTML = '') || true;
   }
 
   // utilities
@@ -426,7 +428,8 @@ function initHelpers(w, d, undefined) {
     if (!obj) { return false; }
     var test = arguments.length ? args2Array(arguments).slice(1) : null
        ,self = obj.constructor;
-    return test ? !!(test.filter(function(a){return a === self}).length)
+    return test
+           ? !!(test.filter(function(a){return a === self}).length)
            : (self.constructor.name ||
               (String(self).match ( /^function\s*([^\s(]+)/im)
                 || [0,'ANONYMOUS_CONSTRUCTOR']) [1] );
@@ -495,5 +498,5 @@ function initHelpers(w, d, undefined) {
      return '_'+Math.floor(10000+Math.random()*10000000).toString(16);
   }
 
-  return helperObj
+  return helperObj;
 }
