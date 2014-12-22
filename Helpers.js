@@ -59,7 +59,7 @@ function initHelpers(w, d, undefined) {
            ,jq    = d.createElement('script');
         jq.src    = '//code.jquery.com/jquery-2.1.1.min.js';
         if (cb && cb instanceof Function)
-         jq.addEventListener('load',cb) );
+         jq.addEventListener('load',cb);
         return head.appendChild(jq);
       };
   }
