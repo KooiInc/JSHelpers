@@ -50,8 +50,8 @@ function initHelpers(w, d, undefined) {
   }
 
   function loadJQ(callback) {
-      if (d.querySelector('#jqloaded')) {
-        return true;
+      if (w.jQuery) {
+        return callback && callback instanceof Function ? callback() : true;
       }
       return function (cb) {
         var head  = d.querySelector('body')
@@ -60,7 +60,7 @@ function initHelpers(w, d, undefined) {
         jqel.src    = 'http://code.jquery.com/jquery-2.1.1.min.js';
         jqel.id     = 'jqloaded';
         head.appendChild(jqel);
-        if (cb && cb instanceof Function)
+        if (callback && callback instanceof Function)
           initcb();
 
         function initcb() {
@@ -68,7 +68,7 @@ function initHelpers(w, d, undefined) {
             console.log('still waiting');
             setTimeout(initcb, 10);
           } else {
-            cb();
+            callback();
           }
          };
       };
