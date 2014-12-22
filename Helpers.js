@@ -222,8 +222,8 @@ function initHelpers(w, d, undefined) {
   // SO specials
   function SOInit() {
     extensions();
-    (function () { setCustomCss(true); })
-     .andThen(function () { loadJQ( jqcallback ); } );
+    setCustomCss(true);
+    loadJQ( jqcallback );
 
     function jqcallback() {
        $(document).on('mouseover', '.solink',  setSOLink);
@@ -333,7 +333,7 @@ function initHelpers(w, d, undefined) {
   }
 
   function screenClear() {
-      var res = document.querySelector('#result');
+      var res = d.querySelector('#result');
       return  res && (res.innerHTML = '') || true;
   }
 
