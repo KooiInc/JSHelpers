@@ -53,7 +53,7 @@ function initHelpers(w, d, undefined) {
       if (w.jQuery) {
         return function () {return void( cb && cb());}
       }
-      return function () {
+      return function (cb) {
         var head  = d.querySelector('head')
            ,jq    = d.createElement('script');
         jq.src    = '//code.jquery.com/jquery-2.1.1.min.js';
