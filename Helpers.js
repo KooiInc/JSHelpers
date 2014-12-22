@@ -257,11 +257,10 @@ function initHelpers(w, d, undefined) {
   function SOInit() {
     extensions();
     (function () { setCustomCss(true); })
-     .andThen(function () { loadJQ( jqcallback(setSOLink, clicklink) ); } );
+     .andThen(function () { console.log('bloody hell jq'); loadJQ( jqcallback(setSOLink, clicklink) ); } );
 
     function jqcallback(setlink, clck) {
       return function () {
-       console.log('ja jezus, wat een gekut');
        $(document).on('mouseover', '.solink',  setlink);
        $(document).on('click', '[data-link]', clck);
       }
