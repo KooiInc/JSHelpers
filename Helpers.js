@@ -245,7 +245,8 @@ function initHelpers(w, d, undefined) {
   // SO specials
   function SOInit() {
     setCustomCss(true);
-    loadJQ(function () {
+    loadJQ( function () {
+      console.log('are we loading?');
       $(document).on('mouseover', '.solink', setSOLink );
       $(document).on('click', '[data-link]', clicklink);
     });
