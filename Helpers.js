@@ -109,6 +109,15 @@ function initHelpers(w, d, undefined) {
             return r;
         };
 
+        Number.prototype.toRange = function (fn, startvalue) {
+          startvalue = startvalue || 0;
+          fn = fn instanceof Function ? fn : function (a,i) { return i+startvalue; };
+          return String(new Array(this.valueOf())).split(',').map( fn );
+        }
+
+        Number.prototype.pretty = Number.prototype.pretty || function (usa, noprecision) {
+            return sep1000(this, usa, noprecision);
+
         // run functions sequentially
         Function.prototype.andThen = function () {
          var args = args2Array(arguments)
@@ -258,7 +267,7 @@ function initHelpers(w, d, undefined) {
   function SOInit() {
     extensions();
     setCustomCss(true);
-    var solink = d.querySelector('[data-linkid]')
+    var solink = d.querySelector('[data-linkid]');
     if (!solink.querySelector('.linkhover')) {
       solink.appendChild(createElementWithProps('div', { className: 'linkhover', 'data-dyn': 'true' } ));
     }
@@ -446,6 +455,32 @@ function initHelpers(w, d, undefined) {
                  ? clone(obj, {})
                  : obj;
   }
+
+  function sep1000(somenum, usa, noprecision){
+    var dec = (''+somenum).split(/[.,]/)
+       ,lendec = dec[1] ? dec[1].length : 0
+       ,precision = lendec && !noprecision ? decPrecise(somenum,lendec) : dec[1]
+       ,sep = usa ? ',' : '.'
+       ,decsep = usa ? '.' : ',';
+
+    // from http://stackoverflow.com/questions/10473994/javascript-adding-decimal-numbers-issue/10474209
+    function decPrecise(d,l){
+      return String(d.toFixed(12)).split(/[.,]/)[1].substr(0,l);
+    }
+
+    function xsep(num,sep) {
+      var n = String(num).split('')
+         ,i = -3;
+      while (n.length + i > 0) {
+          n.splice(i, 0, sep);
+          i -= 4;
+      }
+      return n.join('');
+    }
+
+    return xsep(dec[0],sep) + (dec[1] ? decsep+precision :'');
+  }
+
 
   return helperObj
 }
