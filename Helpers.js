@@ -12,7 +12,8 @@ function initHelpers(w, d, undefined) {
     log2Screen: log2Screen,
     initSO: SOInit,
     printDirect: printDirect,
-    logClear: screenClear
+    logClear: screenClear,
+    partial: Partial
   };
 
   function setCustomCss(yn) {
@@ -404,6 +405,18 @@ function initHelpers(w, d, undefined) {
            : (self.constructor.name ||
               (String(self).match ( /^function\s*([^\s(]+)/im)
                 || [0,'ANONYMOUS_CONSTRUCTOR']) [1] );
+  };
+
+  function Partial (fn) {
+    this.initial = [].slice.call(arguments,1);
+    this.fnp = function () {
+                 return fn.partialx.apply(fn, this.initial);
+                };
+    if (!Partial.prototype.x) {
+      Partial.prototype.x = function () {
+        return this.fnp().apply(null, [].slice.call(arguments));
+      };
+    }
   };
 
   return helperObj
