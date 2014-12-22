@@ -53,18 +53,17 @@ function initHelpers(w, d, undefined) {
       if (w.jQuery) {
         return callback && callback instanceof Function ? callback() : true;
       }
-      var head  = d.querySelector('body')
+      var head  = d.querySelector('head')
          ,jqel  = d.createElement('script');
 
       jqel.src    = 'http://code.jquery.com/jquery-2.1.1.min.js';
       jqel.id     = 'jqloaded';
       head.appendChild(jqel);
       if (callback && callback instanceof Function)
-          initcb();
+          jqel.addEventListener('load', initcb);
 
       function initcb() {
         if (!w.jQuery) {
-          console.log('still waiting');
           setTimeout(initcb, 10);
         } else {
           callback();
@@ -257,18 +256,15 @@ function initHelpers(w, d, undefined) {
   function SOInit() {
     extensions();
     (function () { setCustomCss(true); })
-     .andThen(function () { console.log('bloody hell jq'); loadJQ( jqcallback(setSOLink, clicklink) ); } );
+     .andThen(function () { loadJQ( jqcallback ); } );
 
-    function jqcallback(setlink, clck) {
-      return function () {
-       $(document).on('mouseover', '.solink',  setlink);
-       $(document).on('click', '[data-link]', clck);
-      }
+    function jqcallback() {
+       $(document).on('mouseover', '.solink',  setSOLink);
+       $(document).on('click', '[data-link]', clicklink);
     };
   }
 
   function setSOLink(e) {
-      console.log('are we loaded?');
       if ($(this).attr('data-link')) { return true; }
 
       $.ajax(
