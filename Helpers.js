@@ -338,7 +338,7 @@ function initHelpers(w, d, undefined) {
   // utilities
   function createElementWithProps(elType, props) {
     var el = d.createElement(elType);
-    if (props && isPlainObject(props)) {
+    if (props && isObjLiteral(props)) {
       for (var l in props) {
         if (!props.hasOwnProperty(l)) continue;
         if (/style/i.test(l)) {
@@ -354,12 +354,9 @@ function initHelpers(w, d, undefined) {
     return el;
   }
 
-  function isPlainObject(item) {
-    return item && typeof item === "object" &&
-           Object.prototype.toString.call(item) === "object Object" &&
-           !item.nodeType;
+  function isObjLiteral(item) {
+    return item.constructor === Object;
   }
-
 
   return helperObj
 }
