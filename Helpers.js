@@ -200,7 +200,9 @@ function initHelpers(w, d, undefined) {
             return res;
         };
        }
+
        Array.prototype.uniquify = noDoubles;
+
        Array.prototype.frequencies = Array.prototype.frequencies || frequencies;
 
        Array.prototype.each = Array.prototype.each || function (fn,rewrite) {
@@ -212,6 +214,16 @@ function initHelpers(w, d, undefined) {
            }
           }
           return this;
+       };
+
+       // see: http://codereview.stackexchange.com/questions/23317/istypeobj-gettypeobj-v0/23329#23329
+       Object.prototype.is = Object.prototype.is || function () {
+        var test = arguments.length ? args2Array(arguments) : null
+           ,self = this.constructor;
+        return test ? !!(test.filter(function(a){return a === self}).length)
+               : (this.constructor.name ||
+                  (String(self).match ( /^function\s*([^\s(]+)/im)
+                    || [0,'ANONYMOUS_CONSTRUCTOR']) [1] );
        };
 
        extended = true;
@@ -339,7 +351,7 @@ function initHelpers(w, d, undefined) {
   // utilities
   function createElementWithProps(elType, props) {
     var el = d.createElement(elType);
-    if (props && isObjLiteral(props)) {
+    if (props && props.is(Object)) {
       for (var l in props) {
         if (!props.hasOwnProperty(l)) continue;
         if (/style/i.test(l)) {
@@ -353,10 +365,6 @@ function initHelpers(w, d, undefined) {
       }
     }
     return el;
-  }
-
-  function isObjLiteral(item) {
-    return item.constructor === Object;
   }
 
   function args2Array(args){
