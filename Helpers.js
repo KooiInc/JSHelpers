@@ -256,10 +256,12 @@ function initHelpers(w, d, undefined) {
   // SO specials
   function SOInit() {
     setCustomCss(true);
-    loadJQ( function () {
+    loadJQ( jqcallback );
+
+    function jqcallback() {
       $(document).on('mouseover', '.solink', setSOLink );
       $(document).on('click', '[data-link]', clicklink);
-    });
+    }
   }
 
   function setSOLink(e) {
