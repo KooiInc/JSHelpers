@@ -255,8 +255,9 @@ function initHelpers(w, d, undefined) {
 
   // SO specials
   function SOInit() {
-    setCustomCss(true);
-    loadJQ( jqcallback(setSOLink, clicklink) );
+    extensions();
+    (function () { setCustomCss(true); })
+     .andThen(function () { loadJQ( jqcallback(setSOLink, clicklink) ); } );
 
     function jqcallback(setlink, clck) {
       return function () {
