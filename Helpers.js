@@ -10,6 +10,8 @@ function initHelpers() {
     useJQ: loadJQ,
     augment: extensions,
     useCSS: setCustomCss
+    log2Screen: log2Screen
+    initSO: SOInit
   };
 
   function reportHTML() {
@@ -238,5 +240,92 @@ function initHelpers() {
        }
        return this;
      };
+  }
+  
+  // SO specials
+  function SOInit() {
+    loadJQ(function () {
+      $(document).on('mouseover', '.solink', setSOLink );
+      $(document).on('click', '[data-link]', clicklink);  
+    });
+  }
+  
+  function setSOLink(e) {
+      if ($(this).attr('data-link')) { return true; }
+
+      $.ajax(
+          {
+              url: 'http://www.nicon.nl/node/stackx/questionx',
+              data: {qid: $('.solink').first().attr('data-linkid')},
+              method: 'post',
+              success: SOcb
+          }
+      );
+
+      function SOcb(data) {
+          var resp = data.items && data.items[0] || data
+          ,linkelement = $('.solink').first()
+          ,linktip = linkelement.find('.linkhover').first()
+          ;
+          linktip.html(
+              'Click logo to view the related question:<p><h3>' + resp.title + '</h3></p>' +
+              'Asked by <img class="profileimg" src="'+
+              resp.owner.profile_image + '"> <div data-link="' +
+              resp.owner.link+'">'+ resp.owner.display_name + '</div>; '+
+              'rep ' + resp.owner.reputation +'; question views: '+resp.view_count
+          );
+          linkelement.attr('data-link', resp.link);
+      }
+
+      return true;
+  }
+
+  // firefox needs a link added to the DOM, Chrome, IE don't
+  function clicklink(e) {
+      e.stopPropagation(); //just this link
+      var linkurl = this.getAttribute('data-link')
+         ,xlink = document.querySelector('a[href="'+linkurl+'"]') ||
+                  function() {
+                      var _link = document.createElement('a');
+                      _link.href = linkurl;
+                      _link.target = '_blank';
+                      _link.style.display = 'none';
+                      document.body.appendChild(_link);
+                      return _link; }();
+      xlink.click();
+  }
+  // alternative screen log  
+  function log2Screen(){
+      var result = document.querySelector('#result') ||
+                   function () { var r = document.createElement('div');
+                       r.id = 'result';
+                       document.body.appendChild(r);
+                       return r; }()
+                       ,args = [].slice.call(arguments)
+                       ,lastarg = args.slice(-1)[0]
+                       ,optkeys = /clear|clrscr|direct|opts|useopts|continuous/i
+                       ,opts = lastarg instanceof Object
+                               && Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length
+                                ? lastarg.opts instanceof Object ? lastarg.opts : lastarg
+                                : {empty: 1};
+      void(!opts.empty && (args = args.slice(0,-1)));
+
+      if (opts.clrscr) {
+          return result.innerHTML = '';
+      }
+
+      if (opts.clear) {
+          result.innerHTML = '';
+      }
+
+      if (opts.continuous) {
+          return result.innerHTML += args.join('').replace(/\n/g,'<br>');
+      }
+
+      var p = document.createElement('p');
+      p.innerHTML = args.join('').replace(/\n/g,'<br>');
+      result.appendChild(p);
+      return opts.direct ? (p.className = 'fadeIn') 
+                         : setTimeout(function () { p.className = 'fadeIn'; }, +opts.timed*1000 || 0);
   }
 }
