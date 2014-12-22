@@ -53,25 +53,25 @@ function initHelpers(w, d, undefined) {
       if (w.jQuery) {
         return callback && callback instanceof Function ? callback() : true;
       }
-      return function (cb) {
-        var head  = d.querySelector('body')
-           ,jqel  = d.createElement('script');
+      var head  = d.querySelector('body')
+         ,jqel  = d.createElement('script');
 
-        jqel.src    = 'http://code.jquery.com/jquery-2.1.1.min.js';
-        jqel.id     = 'jqloaded';
-        head.appendChild(jqel);
-        if (callback && callback instanceof Function)
+      jqel.src    = 'http://code.jquery.com/jquery-2.1.1.min.js';
+      jqel.id     = 'jqloaded';
+      head.appendChild(jqel);
+      if (callback && callback instanceof Function)
           initcb();
 
-        function initcb() {
-          if (!w.jQuery) {
-            console.log('still waiting');
-            setTimeout(initcb, 10);
-          } else {
-            callback();
-          }
-         };
+      function initcb() {
+        if (!w.jQuery) {
+          console.log('still waiting');
+          setTimeout(initcb, 10);
+        } else {
+          callback();
+        }
       };
+
+      return void(0);
   }
 
   function loadCSS() {
