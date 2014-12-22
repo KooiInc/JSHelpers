@@ -60,13 +60,16 @@ function initHelpers(w, d, undefined) {
         jq.src    = '//code.jquery.com/jquery-2.1.1.min.js';
         jq.id     = 'jqloaded';
         head.appendChild(jq);
-        initcb();
+        if (cb && cb instanceof Function)
+          initcb();
+
         function initcb() {
-                if (!w.jQuery) {
-                  setTimeout(initcb, 10);
-                } else {
-                  cb();
-                }
+          if (!w.jQuery) {
+            console.log('still waiting');
+            setTimeout(initcb, 10);
+          } else {
+            cb();
+          }
          };
       };
   }
@@ -254,8 +257,8 @@ function initHelpers(w, d, undefined) {
   function SOInit() {
     setCustomCss(true);
     loadJQ( function () {
-      $('body').on('mouseover', '.solink', setSOLink );
-      $('body').on('click', '[data-link]', clicklink);
+      $(document).on('mouseover', '.solink', setSOLink );
+      $(document).on('click', '[data-link]', clicklink);
     });
   }
 
