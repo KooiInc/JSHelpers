@@ -260,6 +260,7 @@ function initHelpers(w, d, undefined) {
 
     function jqcallback(setlink, clck) {
       return function () {
+       console.log('ja jezus, wat een gekut');
        $(document).on('mouseover', '.solink',  setlink);
        $(document).on('click', '[data-link]', clck);
       }
