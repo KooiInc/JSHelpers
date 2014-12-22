@@ -13,7 +13,8 @@ function initHelpers(w, d, undefined) {
     initSO: SOInit,
     printDirect: printDirect,
     logClear: screenClear,
-    Partial: Partial
+    Partial: Partial,
+    cloneObj: cloneObj
   };
 
   function setCustomCss(yn) {
@@ -418,6 +419,29 @@ function initHelpers(w, d, undefined) {
       };
     }
   };
+
+  function cloneObj(obj) {
+    // clone the whole enchillada, recursive
+    function clone(o, curr) {
+        for (var l in o){
+            if (!o.hasOwnProperty(l)) { continue; }
+            if (o[l] instanceof Object) {
+                curr[l] = cloneObj(o[l]);
+            } else {
+                curr[l] = o[l];
+            }
+        }
+        return curr;
+    }
+
+    return obj instanceof Array
+             ? obj.slice().map( function (v) { return cloneObj(v); } )
+             : obj instanceof Date
+               ? new Date(obj)
+               : obj instanceof Object
+                 ? clone(obj, {})
+                 : obj;
+  }
 
   return helperObj
 }
