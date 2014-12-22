@@ -408,7 +408,7 @@ function initHelpers(w, d, undefined) {
   };
 
   function Partial (func) {
-    this.initial = func(arguments, 1);
+    this.initial = args2Array(arguments, 1);
     this.funcp = function () {
                  return func.partialx.apply(func, this.initial);
                 };
