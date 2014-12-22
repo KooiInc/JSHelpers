@@ -57,8 +57,9 @@ function initHelpers(w, d, undefined) {
       return function () {
         var head  = d.querySelector('head')
            ,jq    = d.createElement('script');
-        void( cb && jq.addEventListener('load',cb) );
         jq.src    = '//code.jquery.com/jquery-2.1.1.min.js';
+        if (cb && cb instanceof Function)
+         jq.addEventListener('load',cb) );
         return head.appendChild(jq);
       };
   }
