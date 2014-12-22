@@ -49,17 +49,17 @@ function initHelpers(w, d, undefined) {
     );
   }
 
-  function loadJQ(cb) {
-      if (w.jQuery) {
-        return function () {return void( cb && cb());}
+  function loadJQ(callback) {
+      if (d.querySelector('#jqloaded')) {
+        return true;
       }
       return function (cb) {
         var head  = d.querySelector('head')
-           ,jq    = d.createElement('script');
+           ,jqel  = d.createElement('script');
 
-        jq.src    = '//code.jquery.com/jquery-2.1.1.min.js';
-        jq.id     = 'jqloaded';
-        head.appendChild(jq);
+        jqel.src    = '//code.jquery.com/jquery-2.1.1.min.js';
+        jqel.id     = 'jqloaded';
+        head.appendChild(jqel);
         if (cb && cb instanceof Function)
           initcb();
 
