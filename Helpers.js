@@ -216,6 +216,19 @@ function initHelpers(w, d, undefined) {
           return this;
        };
 
+       // statics
+       Object.print = function (obj, space) {
+            space = space || '  ';
+            return '<pre class="code">'+JSON.stringify(obj, null, space)+'</pre>';
+       }
+
+       Object.format = function (obj, space) {
+            space = space || '  ';
+            return '<div class="objformat">'+JSON.stringify(obj, null, space)+'</div>';
+       }
+       
+       Object.isOneOf = isOfType;
+
        extended = true;
        return extended;
   }
