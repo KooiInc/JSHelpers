@@ -340,13 +340,14 @@ function initHelpers(w, d, undefined) {
     var el = d.createElement(elType);
     if (props && isPlainObject(props)) {
       for (var l in props) {
+        if (!props.hasOwnProperty(l)) continue;
         if (/style/i.test(l)) {
           for (var ll in props[l]) {
-            if (props[l].hasOwnProperty(ll))
-              el.style[ll] = props[l][ll];
+            if (!props[l].hasOwnProperty(ll)) continue;
+            el.style[ll] = props[l][ll];
           }
-        } else if (props.hasOwnProperty(l)) {
-            el[l] = props[l];
+        } else {
+          el[l] = props[l];
         }
       }
     }
