@@ -14,7 +14,8 @@ function initHelpers(w, d, undefined) {
     printDirect: printDirect,
     logClear: screenClear,
     Partial: Partial,
-    cloneObj: cloneObj
+    cloneObj: cloneObj,
+    randomID: randomID
   };
 
   function setCustomCss(yn) {
@@ -490,6 +491,9 @@ function initHelpers(w, d, undefined) {
     return xsep(dec[0],sep) + (dec[1] ? decsep+precision :'');
   }
 
+  function randomID() {
+     return '_'+Math.floor(10000+Math.random()*10000000).toString(16);
+  }
 
   return helperObj
 }
