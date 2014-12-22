@@ -173,6 +173,15 @@ function initHelpers(w, d, undefined) {
           return ([].toRE.call(arr));
         }
 
+        Array.prototype.toCheckboxValues = Array.prototype.toCheckboxValues || function (checked) {
+          checked = checked || [];
+          var cbxs = [];
+          this.map(function (a, i) {
+                     cbxs.push({check: checked.indexOf(i)>-1 ? 1 : 0, val: String(a)});
+                    }, cbxs);
+          return cbxs;
+        };
+
         String.prototype.reCleanup = function(encodeHTML){
           var str = encodeHTML ? this.replace(/[\u0080-\u024F]/g, function(a) {return '&#'+a.charCodeAt(0)+';';}) : this;
           return str.replace(/[?*|.+$\/]|\\/g, function(c) {return c==='\\' ? '' : '\\\\'+c;});
