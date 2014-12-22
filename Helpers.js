@@ -118,6 +118,25 @@ function initHelpers(w, d, undefined) {
                  : true;
         };
 
+        Function.prototype.partial = Function.prototype.partial || function () {
+             var stored_args = [].slice.call(arguments)
+                ,fn = this;
+            return function () {
+                return fn.apply(null, stored_args.concat([].slice.call(arguments)));
+             };
+        };
+
+        Function.prototype.partialx = function(){
+            var fn = this, args = Array.prototype.slice.call(arguments);
+            return function(){
+              var arg = 0;
+              for ( var i = 0; i < args.length && arg < arguments.length; i++ )
+                if ( args[i] === undefined || args[i] === null)
+                  args[i] = arguments[arg++];
+              return fn.apply(this, args);
+            };
+        };
+
         // is character @ [atpos] upperCase?
         boolean:String.prototype.charIsUpper = function (atpos){
           var chr = this.charAt(atpos);
