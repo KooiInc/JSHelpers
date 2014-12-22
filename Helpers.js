@@ -9,8 +9,8 @@ function initHelpers() {
     isObj: isPlainObject,
     useJQ: loadJQ,
     augment: extensions,
-    useCSS: setCustomCss
-    log2Screen: log2Screen
+    useCSS: setCustomCss,
+    log2Screen: log2Screen,
     initSO: SOInit
   };
 
