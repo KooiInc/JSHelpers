@@ -217,7 +217,7 @@ function initHelpers(w, d, undefined) {
        };
 
        // see: http://codereview.stackexchange.com/questions/23317/istypeobj-gettypeobj-v0/23329#23329
-       Object.prototype.is = Object.prototype.is || function () {
+       Object.prototype.isOfType = Object.prototype.isOfType || function () {
         var test = arguments.length ? args2Array(arguments) : null
            ,self = this.constructor;
         return test ? !!(test.filter(function(a){return a === self}).length)
@@ -351,7 +351,7 @@ function initHelpers(w, d, undefined) {
   // utilities
   function createElementWithProps(elType, props) {
     var el = d.createElement(elType);
-    if (props && props.is(Object)) {
+    if (props && props.isOfType(Object)) {
       for (var l in props) {
         if (!props.hasOwnProperty(l)) continue;
         if (/style/i.test(l)) {
