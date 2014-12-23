@@ -454,7 +454,7 @@ function initHelpers(w, d, undefined) {
     loadJQ( jqcallback );
 
     function jqcallback() {
-       $('#helperload').fadeOut(200);
+       $('#helperload').fadeOut(500);
        $(document).on('mouseover', '.solink',  setSOLink);
        $(document).on('click', '[data-link]', clicklink);
     };
