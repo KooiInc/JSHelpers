@@ -269,8 +269,7 @@ function initHelpers(w, d, undefined) {
       return '<div class="objformat">'+JSON.stringify(obj, null, space)+'</div>';
      }
 
-     Object.isOneOf = isOfType;
-
+     Object.ofType = isOfType;
 
     //simple date extenter
     if (!Date.prototype.add) {
@@ -452,8 +451,8 @@ function initHelpers(w, d, undefined) {
     if (solink && !solink.querySelector('.linkhover')) {
       solink.appendChild(createElementWithProps('div', { className: 'linkhover', 'data-dyn': 'true' } ));
     }
+    setTimeout(function () { d.querySelector('#helperload').style.display = 'none'; }, 200);
     loadJQ( jqcallback );
-    setTimeout(function () { d.querySelector('#helperload').style.display = 'none'; }, 100);
 
     function jqcallback() {
        $(document).on('mouseover', '.solink',  setSOLink);
@@ -534,7 +533,7 @@ function initHelpers(w, d, undefined) {
        ,args = args2Array(arguments)
        ,lastarg = args.slice(-1)[0]
        ,optkeys = /clear|clrscr|direct|opts|useopts|continuous/i
-       ,opts = Object.isOneOf(lastarg, Object) &&
+       ,opts = Object.ofType(lastarg, Object) &&
                Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length
                 ? lastarg.opts instanceof Object ? lastarg.opts : lastarg
                 : {empty: 1};
