@@ -447,6 +447,7 @@ function initHelpers(w, d, undefined) {
 
   // SO specials
   function SOInit() {
+    var loadingmsg = d.body.insertBefore(createElementWithProps('div', {id:'helperload'}), d.body.firstChild);
     extensions();
     setCustomCss(true);
     var solink = d.querySelector('[data-linkid]');
@@ -456,6 +457,7 @@ function initHelpers(w, d, undefined) {
     loadJQ( jqcallback );
 
     function jqcallback() {
+       setTimeout(function () { $('#helperload').hide(); }, 50);
        $(document).on('mouseover', '.solink',  setSOLink);
        $(document).on('click', '[data-link]', clicklink);
     };

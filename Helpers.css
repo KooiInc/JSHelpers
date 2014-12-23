@@ -28,6 +28,12 @@ body:after {
     opacity: 1;
     transition: all ease-in 0.8s 0s;
 }
+#helperload:before {
+    content: 'Loading helpers';
+    padding: 5px;
+    background: black;
+    color: white;
+}
 code, pre.code {
     background: #eee;
     color: green;
