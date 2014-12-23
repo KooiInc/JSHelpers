@@ -33,6 +33,8 @@ body:after {
     padding: 5px;
     background: black;
     color: white;
+    position: fixed;
+    top: 10px;
 }
 code, pre.code {
     background: #eee;
