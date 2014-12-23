@@ -446,6 +446,7 @@ function initHelpers(w, d, undefined) {
 
   // SO specials
   function SOInit() {
+    var solink = d.querySelector('[data-linkid]');
     if (solink && !solink.querySelector('.linkhover')) {
       solink.appendChild(createElementWithProps('div', { className: 'linkhover', 'data-dyn': 'true' } ));
     }
@@ -671,7 +672,6 @@ function initHelpers(w, d, undefined) {
     setCustomCss(true);
     w.addEventListener('load', function () {
       var loadingmsg = d.body.insertBefore(createElementWithProps('div', {id:'helperload'}), d.body.firstChild);
-      var solink = d.querySelector('[data-linkid]');
     });
     w.addEventListener('load', SOInit);
   }
