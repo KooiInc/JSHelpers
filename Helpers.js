@@ -448,10 +448,11 @@ function initHelpers(w, d, undefined) {
   function SOInit() {
     var loadingmsg = d.body.insertBefore(createElementWithProps('div', {id:'helperload'}), d.body.firstChild);
     var solink = d.querySelector('[data-linkid]');
+    var remove = setTimeout(function () { d.querySelector('#helperload').style.display = 'none'; }, 200);
     if (solink && !solink.querySelector('.linkhover')) {
       solink.appendChild(createElementWithProps('div', { className: 'linkhover', 'data-dyn': 'true' } ));
     }
-    setTimeout(function () { d.querySelector('#helperload').style.display = 'none'; }, 200);
+
     loadJQ( jqcallback );
 
     function jqcallback() {
