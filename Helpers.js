@@ -479,11 +479,11 @@ function initHelpers(w, d, undefined) {
              ,linktip = linkelement.find('.linkhover').first()
           ;
           linktip.html(
-              'Click logo to view the related question:<p><h3>' + resp.title + '</h3></p>' +
-              'Asked by <img class="profileimg" src="'+
+              '<p>Click logo to view the related question:<p><h3>' + resp.title + '</h3>' +
+              'Asked by <img class="profileimg" src="' +
               resp.owner.profile_image + '"> <div data-link="' +
               resp.owner.link+'">'+ resp.owner.display_name + '</div>; '+
-              'rep ' + resp.owner.reputation +'; question views: '+resp.view_count
+              'rep ' + resp.owner.reputation +'; question views: ' + resp.view_count
           );
           linkelement.attr('data-link', resp.link);
       }
