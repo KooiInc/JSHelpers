@@ -446,9 +446,6 @@ function initHelpers(w, d, undefined) {
 
   // SO specials
   function SOInit() {
-    var loadingmsg = d.body.insertBefore(createElementWithProps('div', {id:'helperload'}), d.body.firstChild);
-    var solink = d.querySelector('[data-linkid]');
-    var remove = setTimeout(function () { d.querySelector('#helperload').style.display = 'none'; }, 200);
     if (solink && !solink.querySelector('.linkhover')) {
       solink.appendChild(createElementWithProps('div', { className: 'linkhover', 'data-dyn': 'true' } ));
     }
@@ -456,6 +453,7 @@ function initHelpers(w, d, undefined) {
     loadJQ( jqcallback );
 
     function jqcallback() {
+       $('#helperload').fadeOut(200);
        $(document).on('mouseover', '.solink',  setSOLink);
        $(document).on('click', '[data-link]', clicklink);
     };
@@ -671,6 +669,10 @@ function initHelpers(w, d, undefined) {
   if (/fiddle|stacksnippets/i.test(self.location.href)) {
     extensions();
     setCustomCss(true);
+    w.addEventListener('load', function () {
+      var loadingmsg = d.body.insertBefore(createElementWithProps('div', {id:'helperload'}), d.body.firstChild);
+      var solink = d.querySelector('[data-linkid]');
+    });
     w.addEventListener('load', SOInit);
   }
 
