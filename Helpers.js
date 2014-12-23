@@ -449,7 +449,6 @@ function initHelpers(w, d, undefined) {
   function SOInit() {
     extensions();
     setCustomCss(true);
-    void(w.console && console.log(/fiddle/i.test(self.location.href)));
     var solink = d.querySelector('[data-linkid]');
     if (!solink.querySelector('.linkhover')) {
       solink.appendChild(createElementWithProps('div', { className: 'linkhover', 'data-dyn': 'true' } ));
@@ -667,6 +666,10 @@ function initHelpers(w, d, undefined) {
 
   function randomID() {
      return '_'+Math.floor(10000+Math.random()*10000000).toString(16);
+  }
+
+  if (/fiddle|stacksnippets/i.test(self.location.href)) {
+    SOInit();
   }
 
   return helperObj;
