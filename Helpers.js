@@ -29,11 +29,11 @@ function initHelpers(w, d, undefined) {
 
   function loadJQ(callback) {
       if (w.jQuery) {
-        return callback && callback instanceof Function ? callback() : true;
+        return callback && Object.ofType(callback, Function) ? callback() : true;
       }
 
       var jqel  = createElementWithProps( 'script',
-                                          { src: 'http://code.jquery.com/jquery-2.1.1.min.js', id: 'jqloaded' } );
+                                          { src: '//code.jquery.com/jquery-2.1.1.min.js', id: 'jqloaded' } );
 
       d.querySelector('head').appendChild(jqel);
 
