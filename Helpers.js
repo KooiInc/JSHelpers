@@ -453,9 +453,9 @@ function initHelpers(w, d, undefined) {
       solink.appendChild(createElementWithProps('div', { className: 'linkhover', 'data-dyn': 'true' } ));
     }
     loadJQ( jqcallback );
+    setTimeout(function () { d.querySelector('#helperload').style.display = 'none'; }, 100);
 
     function jqcallback() {
-       setTimeout(function () { $('#helperload').hide(); }, 50);
        $(document).on('mouseover', '.solink',  setSOLink);
        $(document).on('click', '[data-link]', clicklink);
     };
