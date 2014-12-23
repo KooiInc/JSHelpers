@@ -669,7 +669,7 @@ function initHelpers(w, d, undefined) {
   }
 
   if (/fiddle|stacksnippets/i.test(self.location.href)) {
-    SOInit();
+    w.addEventListener('load', SOInit);
   }
 
   return helperObj;
