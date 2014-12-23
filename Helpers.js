@@ -449,6 +449,7 @@ function initHelpers(w, d, undefined) {
   function SOInit() {
     extensions();
     setCustomCss(true);
+    void(w.console && console.log(/fiddle/i.test(self.location.href)));
     var solink = d.querySelector('[data-linkid]');
     if (!solink.querySelector('.linkhover')) {
       solink.appendChild(createElementWithProps('div', { className: 'linkhover', 'data-dyn': 'true' } ));
