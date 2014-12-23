@@ -450,7 +450,7 @@ function initHelpers(w, d, undefined) {
     extensions();
     setCustomCss(true);
     var solink = d.querySelector('[data-linkid]');
-    if (!solink.querySelector('.linkhover')) {
+    if (solink && !solink.querySelector('.linkhover')) {
       solink.appendChild(createElementWithProps('div', { className: 'linkhover', 'data-dyn': 'true' } ));
     }
     loadJQ( jqcallback );
