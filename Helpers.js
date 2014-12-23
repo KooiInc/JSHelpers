@@ -37,7 +37,7 @@ function initHelpers(w, d, undefined) {
 
       d.querySelector('head').appendChild(jqel);
 
-      if (callback && callback instanceof Function)
+      if (callback && isOfType(callback,Function))
           jqel.addEventListener('load', callback);
 
       return void(0);
@@ -203,7 +203,7 @@ function initHelpers(w, d, undefined) {
 
           var t = Object(this);
           var len = t.length >>> 0;
-          if (typeof fun != "function")
+          if (!isOfType(fun, Function))
             throw new TypeError();
 
           var res = [];
@@ -229,7 +229,7 @@ function initHelpers(w, d, undefined) {
 
           var t = Object(this);
           var len = t.length >>> 0;
-          if (typeof fun !== "function")
+          if (!isOfType(fun, Function))
             throw new TypeError();
 
           var res = new Array(len);
