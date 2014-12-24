@@ -1,4 +1,3 @@
-g62
 Helpers = initHelpers(window, document);
 
 function initHelpers(w, d, undefined) {
