@@ -1,3 +1,4 @@
+g62
 Helpers = initHelpers(window, document);
 
 function initHelpers(w, d, undefined) {
@@ -59,7 +60,7 @@ function initHelpers(w, d, undefined) {
 
   function unloadCSS() {
    var css = document.querySelector('#HelperCSS');
-   void (css && document.querySelector('head').removeChild(css));
+   return void (css && document.querySelector('head').removeChild(css));
   }
 
    // a few usefull augments/polyfills
@@ -536,8 +537,9 @@ function initHelpers(w, d, undefined) {
        ,opts = Object.ofType(lastarg, Object) &&
                Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length
                 ? lastarg.opts instanceof Object ? lastarg.opts : lastarg
-                : {empty: 1};
-    void(!opts.empty && (args = args.slice(0,-1)));
+                : {empty: 1}
+       ,dummy = void(!opts.empty && (args = args.slice(0,-1)))
+    ;
 
     if (opts.clrscr) {
         return result.innerHTML = '';
