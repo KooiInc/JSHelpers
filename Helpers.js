@@ -271,7 +271,8 @@ function initHelpers(w, d, undefined) {
 
      Object.ofType = isOfType;
 
-    //simple date extenter
+    // simple date extenter
+    // add languages if necessary
     if (!Date.prototype.add) {
       (function() {
         var fragments     = {
@@ -286,17 +287,17 @@ function initHelpers(w, d, undefined) {
              }
             ,weekdays     = {
                              NL: toEnum(('zondag,maandag,dinsdag,woensdag,donderdag,' +
-                                    'vrijdag,zaterdag').split(','))
+                                         'vrijdag,zaterdag').split(','))
                             ,EN:  toEnum(('sunday,monday,tuesday,wednesday,thursday,' +
-                                    'friday,saturday').split(','))
+                                          'friday,saturday').split(','))
                             }
             ,months       = {
                              NL: toEnum(('januari,februari,maart,april,mei,juni,juli,' +
-                                    'augustus,september,oktober,' +
-                                    'november,december').split(',')),
+                                         'augustus,september,oktober,' +
+                                         'november,december').split(',')),
                              EN: toEnum(('january,february,march,april,may,june,july,' +
-                                    'august,september,october,' +
-                                    'november,december').split(','))
+                                         'august,september,october,' +
+                                         'november,december').split(','))
                             }
             ,weekdayshort = {
                              NL: toEnum(('zo,ma,di,wo,do,vr,za').split(',')),
@@ -304,9 +305,9 @@ function initHelpers(w, d, undefined) {
                             }
             ,monthshort   = {
                              NL: toEnum(('jan,feb,mrt,apr,mei,jun,jul,' +
-                                    'aug,sep,okt,nov,dec').split(',')),
+                                         'aug,sep,okt,nov,dec').split(',')),
                              EN: toEnum(('jan,feb,mrch,apr,may,jun,jul,' +
-                                    'aug,sep,okt,nov,dec').split(','))
+                                         'aug,sep,okt,nov,dec').split(','))
                             }
         ;
 
@@ -432,11 +433,12 @@ function initHelpers(w, d, undefined) {
         }
 
         Number.prototype.padLeft = padLeftZero;
-        Date.prototype.setFormat = function(f){this.strformat = f; return this;}
+        // add stuff to Date.prototype
+        Date.prototype.setFormat      = function(f){this.strformat = f; return this;}
         Date.prototype.changeLanguage = chngLang;
-        Date.prototype.set = dateset;
-        Date.prototype.add = dateadd;
-        Date.prototype.format = format;
+        Date.prototype.set            = dateset;
+        Date.prototype.add            = dateadd;
+        Date.prototype.format         = format;
       }());
      }
 
@@ -444,7 +446,7 @@ function initHelpers(w, d, undefined) {
      return extended;
   }
 
-  // SO specials
+  // StackOverflow/jsFiddle special handling
   function SOInit() {
     var solink = d.querySelector('[data-linkid]');
     if (solink && !solink.querySelector('.linkhover')) {
