@@ -522,7 +522,7 @@ function initHelpers(w, d, undefined) {
                              ,'mi': 'Minutes'
                              ,'s' : 'Seconds'
                              ,'ms': 'MilliSeconds'
-                             ,get: function(frag,get){ return get && 'get'+this[frag] || 'set'+this[frag]; }
+                             , get: function(frag,get){ return get && 'get'+this[frag] || 'set'+this[frag]; }
              }
             ,weekdays     = {
                              NL: toEnum(('zondag,maandag,dinsdag,woensdag,donderdag,' +
@@ -629,7 +629,7 @@ function initHelpers(w, d, undefined) {
                 , MM:  months[lang].byArr[base.m - 1]
                 , wd:  weekdayshort[lang].byArr[base.dow]
                 , WD:  weekdays[lang].byArr[base.dow]
-                , WDU:  weekdays[lang].byArr[base.dow].firstUp()
+                , WDU: weekdays[lang].byArr[base.dow].firstUp()
                }
               ,regExBuild = []
           ;
