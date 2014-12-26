@@ -555,7 +555,7 @@ function initHelpers(w, d, undefined) {
     }
 
     var p = createElementWithProps('p');
-    p.innerHTML = args.join('').replace(/\n/g,'<br>');
+    p.innerHTML = args.join('').replace(/\n/g,'<br>').replace(/`(\b[^`]*)?`/g, '<code>$1</code>');
     result.appendChild(p);
     return opts.direct ? (p.className = 'fadeIn')
                        : setTimeout(function () { p.className = 'fadeIn'; }, +opts.timed*1000 || 0);

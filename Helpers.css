@@ -36,10 +36,11 @@ body:after {
     position: fixed;
     top: 10px;
 }
+
 code, pre.code {
     background: #eee;
     color: green;
-    padding: 0;
+    padding: 0 1px;
 }
 
 pre.code {
