@@ -5,18 +5,18 @@ function initHelpers(w, d, undefined) {
   var useCustomCss = false;
   var extended = extensions();
 
-  var helperObj = {
-    report: reportHTML,
-    useJQ: loadJQ,
-    useCSS: setCustomCss,
-    log2Screen: log2Screen,
-    initSO: SOInit,
-    printDirect: printDirect,
-    logClear: screenClear,
-    Partial: Partial,
-    cloneObj: cloneObj,
-    randomID: randomID,
-    extendDate: useDTF
+  var helperObj = {             // Helpers methods:
+    report: reportHTML,         // - simple reporting
+    useJQ: loadJQ,              // - load jquery (2.1.1)
+    useCSS: setCustomCss,       // - load custom css (see project)
+    log2Screen: log2Screen,     // - more elaborate reporting
+    initSO: SOInit,             // - detect Stackoverflow/jsFiddle and initialize
+    printDirect: printDirect,   // - report without fadein effect
+    logClear: screenClear,      // - clear current reported results
+    Partial: Partial,           // - partially parametrize a function
+    cloneObj: cloneObj,         // - clone any object on all levels
+    randomID: randomID,         // - a random id for on the fly created elements
+    extendDate: useDTF          // - use custom DateTime-formatting
   };
 
   function setCustomCss(use) {
@@ -350,7 +350,7 @@ function initHelpers(w, d, undefined) {
     report.appendChild(entry);
 
     if (useCustomCss) {
-      var to = function () { entry.className = 'fadeIn'; };
+      var to = function () { entry.className = 'show'; };
       var dummy = setTimeout(to, 100);
     }
   }
@@ -387,8 +387,8 @@ function initHelpers(w, d, undefined) {
     var p = createElementWithProps('p');
     p.innerHTML = args.join('').replace(/\n/g,'<br>').replace(/`(\b[^`]*)?`/g, '<code>$1</code>');
     result.appendChild(p);
-    return opts.direct ? (p.className = 'fadeIn')
-                       : setTimeout(function () { p.className = 'fadeIn'; }, +opts.timed*1000 || 0);
+    return opts.direct ? (p.className = 'show')
+                       : setTimeout(function () { p.className = 'show'; }, +opts.timed*1000 || 0);
   }
 
   function printDirect() {

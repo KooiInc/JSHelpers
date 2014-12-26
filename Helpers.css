@@ -24,10 +24,12 @@ body:after {
     margin: 0.4em 0;
     max-width: 1024px;
 }
-#result .fadeIn {
+
+#result .show {
     opacity: 1;
     transition: all ease-in 0.8s 0s;
 }
+
 #helperload:before {
     content: 'Loading helpers';
     padding: 5px;
