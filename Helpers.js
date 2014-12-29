@@ -4,6 +4,7 @@ function initHelpers(w, d, undefined) {
   "use strict";
   var useCustomCss = false;
   var extended = extensions();
+  var pathToCss = 'http://kooiinc.github.io/JSHelpers/helpers.css';
 
   var helperObj = {             // Helpers methods:
     report: reportHTML,         // - simple reporting
@@ -50,7 +51,7 @@ function initHelpers(w, d, undefined) {
     }
     var css = createElementWithProps(
                     'link',
-                    { href: 'https://rawgit.com/KooiInc/Helpers/master/Helpers.css',
+                    { href: pathToCss,
                       type: 'text/css',
                       rel: 'stylesheet',
                       id: 'HelperCSS' }
@@ -684,5 +685,3 @@ function initHelpers(w, d, undefined) {
 
   return helperObj;
 }
-
-
