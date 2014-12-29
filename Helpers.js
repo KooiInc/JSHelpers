@@ -4,7 +4,8 @@ function initHelpers(w, d, undefined) {
   "use strict";
   var useCustomCss = false;
   var extended = extensions();
-  var pathToCss = 'http://kooiinc.github.io/JSHelpers/helpers.css';
+  // note: git links are case sensitive
+  var pathToCss = 'http://kooiinc.github.io/JSHelpers/Helpers.css';
 
   var helperObj = {             // Helpers methods:
     report: reportHTML,         // - simple reporting
