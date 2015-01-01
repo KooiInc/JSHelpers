@@ -114,6 +114,8 @@ function initHelpers(w, d, undefined) {
         return r;
       };
 
+      Boolean.prototype.yn = function () { return false == this ? 'no' : 'yes'; };
+
       Number.prototype.toRange = Number.prototype.toRange || function (fn, startvalue) {
         startvalue = startvalue || 0;
         fn = isOfType(fn, Function) ? fn : function (a,i) { return i+startvalue; };
