@@ -266,7 +266,7 @@ function initHelpers(w, d, undefined) {
      // statics
      Object.extend = function extend(base, extendobj){
       for (var key in extendobj) {
-        if (!b.hasOwnProperty(key)) { continue; }
+        if (!extendobj.hasOwnProperty(key)) { continue; }
         base[key] = extendobj[key];
       }
       return base;
