@@ -264,6 +264,14 @@ function initHelpers(w, d, undefined) {
      };
 
      // statics
+     Object.extend = function extend(base, extendobj){
+      for (var key in extendobj) {
+        if (!b.hasOwnProperty(key)) { continue; }
+        base[key] = extendobj[key];
+      }
+      return base;
+     };
+
      Object.print = function (obj, space) {
       space = space || '  ';
       return '<pre class="code">'+JSON.stringify(obj, null, space)+'</pre>';
