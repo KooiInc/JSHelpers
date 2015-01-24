@@ -594,7 +594,7 @@ function initHelpers(w, d, undefined) {
           return this;
         }
 
-        function dateAddByObj(args,utc){
+        function dateAddByObj(args, utc, clone){
           // default: seconds if args is a number
           if (+args) { return this.setSeconds(this.getSeconds()+(+args)); }
           utc = utc && 'UTC' || '';
@@ -606,19 +606,19 @@ function initHelpers(w, d, undefined) {
                               || self;
                       };
           for (var l in args){ add(l, +args[l]) }
-          return this;
+          return clone ? new Date(this) : this;
         }
 
-        function dateadd(f,val){
+        function dateadd(f, val, utc, clone){
           if (f instanceof Object) {
-           return dateAddByObj.call(this,f);
+           return dateAddByObj.apply(this, [f, utc, clone]);
           }
           val = Number(val) || 1;
           var sf = fragments.get(f)
              ,gf = fragments.get(f,1);
           this[sf](this[gf]()+val);
           setCurrentValues.call(this);
-          return this;
+          return clone ? new Date(this) : this;
         }
 
         function d2frags(dat) {
