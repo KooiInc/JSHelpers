@@ -397,7 +397,10 @@ function initHelpers(w, d, undefined) {
     }
 
     var p = createElementWithProps('p');
-    p.innerHTML = args.join('').replace(/\n/g,'<br>').replace(/`(\b[^`]*)?`/g, '<code>$1</code>');
+    p.innerHTML = args.join('')
+                   .replace(/\n/g,'<br>')
+                   .replace(/`([^`]*)`/g,
+                            function(a, b, c) { return '<code>'+b+'</code>'; });
     result.appendChild(p);
     return opts.direct ? (p.className = 'show')
                        : setTimeout(function () { p.className = 'show'; }, +opts.timed*1000 || 0);
