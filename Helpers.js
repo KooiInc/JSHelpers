@@ -526,7 +526,8 @@ function initHelpers(w, d, undefined) {
 
   // simple date extenter
   // add languages if necessary
-  function useDTF() {
+  function useDTF(lang) {
+    lang = lang || 'NL';
     if (!Date.prototype.add) {
       (function() {
         var fragments     = {
@@ -622,7 +623,7 @@ function initHelpers(w, d, undefined) {
         function d2frags(dat) {
           dat = dat || this;
           dat.cy || setCurrentValues.call(dat);
-          var  lang = dat.language || 'EN'
+          var  lng  = dat.getLang() || 'EN'
               ,base = {
                   yyyy: dat.cy
                 , m:    dat.cm
@@ -640,11 +641,11 @@ function initHelpers(w, d, undefined) {
                 , mi:  base.min.padLeft()
                 , ss:  base.s.padLeft()
                 , mss: base.ms.padLeft(3)
-                , M:   monthshort[lang].byArr[base.m - 1]
-                , MM:  months[lang].byArr[base.m - 1]
-                , wd:  weekdayshort[lang].byArr[base.dow]
-                , WD:  weekdays[lang].byArr[base.dow]
-                , WDU: weekdays[lang].byArr[base.dow].firstUp()
+                , M:   monthshort[lng].byArr[base.m - 1]
+                , MM:  months[lng].byArr[base.m - 1]
+                , wd:  weekdayshort[lng].byArr[base.dow]
+                , WD:  weekdays[lng].byArr[base.dow]
+                , WDU: weekdays[lng].byArr[base.dow].firstUp()
                }
               ,regExBuild = []
           ;
@@ -683,6 +684,7 @@ function initHelpers(w, d, undefined) {
 
         function chngLang(lang) {
          this.language = /^[EN][NL]$/i.test(lang) && lang.toUpperCase() || 'NL';
+         this.constructor.prototype.language = this.language;
          return this;
         }
 
@@ -693,6 +695,7 @@ function initHelpers(w, d, undefined) {
         Date.prototype.set            = dateset;
         Date.prototype.add            = dateadd;
         Date.prototype.format         = format;
+        Date.prototype.language       = lang;
       }());
     }
   }
