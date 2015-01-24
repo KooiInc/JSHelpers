@@ -524,7 +524,7 @@ function initHelpers(w, d, undefined) {
     w.addEventListener('load', SOInit);
   }
 
-  // simple date extenter
+    // simple date extenter
   // add languages if necessary
   function useDTF(lang) {
     lang = lang || 'NL';
@@ -602,7 +602,8 @@ function initHelpers(w, d, undefined) {
               ,add  = function (label, v) {
                        label = label && label.slice(0,1).toUpperCase()+label.slice(1).toLowerCase() || '';
                        label = /Fullyear/.test(label) && 'FullYear' || label;
-                       return self['set'+utc+label] && self['set'+utc+label](self['get'+utc+label]()+v) || self;
+                       return self['set'+utc+label] && self['set'+utc+label](self['get'+utc+label]()+v)
+                              || self;
                       };
           for (var l in args){ add(l, +args[l]) }
           return this;
@@ -623,7 +624,7 @@ function initHelpers(w, d, undefined) {
         function d2frags(dat) {
           dat = dat || this;
           dat.cy || setCurrentValues.call(dat);
-          var  lng  = dat.getLang() || 'EN'
+          var  language = dat.getLang() || 'EN'
               ,base = {
                   yyyy: dat.cy
                 , m:    dat.cm
@@ -641,11 +642,11 @@ function initHelpers(w, d, undefined) {
                 , mi:  base.min.padLeft()
                 , ss:  base.s.padLeft()
                 , mss: base.ms.padLeft(3)
-                , M:   monthshort[lng].byArr[base.m - 1]
-                , MM:  months[lng].byArr[base.m - 1]
-                , wd:  weekdayshort[lng].byArr[base.dow]
-                , WD:  weekdays[lng].byArr[base.dow]
-                , WDU: weekdays[lng].byArr[base.dow].firstUp()
+                , M:   monthshort[language].byArr[base.m - 1]
+                , MM:  months[language].byArr[base.m - 1]
+                , wd:  weekdayshort[language].byArr[base.dow]
+                , WD:  weekdays[language].byArr[base.dow]
+                , WDU: weekdays[language].byArr[base.dow].firstUp()
                }
               ,regExBuild = []
           ;
@@ -690,12 +691,13 @@ function initHelpers(w, d, undefined) {
 
         Number.prototype.padLeft = Number.prototype.padLeft || padLeftZero;
         // add stuff to Date.prototype
+        Date.prototype.language       = lang.toUpperCase();
         Date.prototype.setFormat      = function(f){this.strformat = f; return this;}
         Date.prototype.changeLanguage = chngLang;
         Date.prototype.set            = dateset;
         Date.prototype.add            = dateadd;
         Date.prototype.format         = format;
-        Date.prototype.language       = lang;
+        Date.prototype.getLang        = function() {return Date.prototype.language;};
       }());
     }
   }
