@@ -126,6 +126,15 @@ function initHelpers(w, d, undefined) {
         return sep1000(this, usa, noprecision);
       };
 
+      Number.prototype.padLeft = function padLeft(len, padchr){
+          padchr = padchr || '0';
+          var self = this + '';
+          return Math.pow( 10, (len || 2) - self.length)
+                    .toString()
+                    .replace(/0/g, padchr)
+                    .slice(1) + self;
+      };
+
       // run functions sequentially
       Function.prototype.andThen = function () {
        var args = args2Array(arguments)
@@ -524,7 +533,7 @@ function initHelpers(w, d, undefined) {
     w.addEventListener('load', SOInit);
   }
 
-    // simple date extenter
+  // simple date extenter
   // add languages if necessary
   function useDTF(lang) {
     lang = lang || 'NL';
@@ -665,17 +674,6 @@ function initHelpers(w, d, undefined) {
           return base;
         }
 
-        function padLeft(base, chr) {
-          var len = (String(base || 10).length - String(this).length) + 1;
-          return len > 0 ? new Array(len).join(chr || '0') + this : this;
-         }
-
-        // alternative
-        function padLeftZero(len){
-          var self = this+'';
-          return (Math.pow( 10, (len || 2)-self.length) + self).slice(1);
-        }
-
         function format(fstr) {
           fstr = fstr || this.strformat || 'yyyy/mm/dd hh:mi:ss';
           var dd = d2frags.call(this);
@@ -689,7 +687,16 @@ function initHelpers(w, d, undefined) {
          return this;
         }
 
-        Number.prototype.padLeft = Number.prototype.padLeft || padLeftZero;
+        Number.prototype.padLeft = Number.prototype.padLeft ||
+          function (len, padchr) {
+              padchr = padchr || '0';
+              var self = this + '';
+              return Math.pow( 10, (len || 2) - self.length)
+                        .toString()
+                        .replace(/0/g, padchr)
+                        .slice(1) + self;
+          };
+
         // add stuff to Date.prototype
         Date.prototype.language       = lang.toUpperCase();
         Date.prototype.setFormat      = function(f){this.strformat = f; return this;}
