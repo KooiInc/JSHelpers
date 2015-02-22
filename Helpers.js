@@ -40,7 +40,7 @@ function initHelpers(w, d, undefined) {
 
       d.querySelector('head').appendChild(jqel);
 
-      if (callback && isOfType(callback,Function))
+      if (callback && Object.isOfType(callback, Function))
           jqel.addEventListener('load', callback);
 
       return void(0);
@@ -70,104 +70,14 @@ function initHelpers(w, d, undefined) {
       if (extended) {
         return true;
       }
-      // remove double values from an array
-      function noDoubles(arr) {
-        arr = arr || this;
-        return arr.filter(function(val) {
-         return !this[val] ? ((this[val] = true), true) : false;
-        }, {});
-      }
 
-      // format static
-      String.Format = function(){
-        var args = String(Array(arguments.length)).split(',').map( function (v, i) { return this[i]; }, arguments);
-        return ''.format.apply(args[0],args.slice(1));
-      };
-
-      String.prototype.format = function () {
-        function parseTokens(text, args) {
-          var len       = text.length,
-              index     = 0,
-              parsed    = '',
-              currToken = '';
-          while (index < len) {
-
-            if (text[index] === '{' && !isNaN(text[index + 1]) ) {
-              index += 1;
-              currToken = '';
-
-              while (text[index] !==  '}' ) {
-                if (isNaN(+text[index])  || /\s/.test(text[index] || index == len)) {
-                  myline += '{' + currToken + text[index];
-                  break;
-                }
-                currToken += text[index];
-                index += 1;
-              }
-              parsed += args[+currToken] || '';
-            } else {
-              parsed += text[index];
-            }
-            index += 1;
-          }
-          return parsed;
-        }
-
-        return parseTokens(this, arguments);
-      };
-
-      String.prototype.repeat = function(n){
-        var s = this, r = '';
-        while(n--) {
-            r += s;
-        }
-        return r;
-      };
-
-      // determine value frequencies in an array
-      function frequencies(arr) {
-        var mapped = {sum: 0};
-        (arr || this).map(function (a){
-            if (!(a in this)) { this[a] = 1; }
-            else { this[a] += 1; }
-            this.sum += 1;
-            return a; }, mapped
-        );
-        return mapped;
-      }
-
-      String.prototype.repeat = function(n){
-        var s = this, r = '';
-        while(n--) {
-            r += s;
-        }
-        return r;
-      };
-
-      Boolean.prototype.yn = function () { return false == this ? 'no' : 'yes'; };
-
-      Number.prototype.toRange = Number.prototype.toRange || function (fn, startvalue) {
-        startvalue = startvalue || 0;
-        fn = isOfType(fn, Function) ? fn : function (a,i) { return i+startvalue; };
-        return String(new Array(this.valueOf())).split(',').map( fn );
-      };
-
-      Number.prototype.pretty = Number.prototype.pretty || function (usa, noprecision) {
-        return sep1000(this, usa, noprecision);
-      };
-
-      Number.prototype.padLeft = function padLeft(len, padchr){
-          padchr = padchr || '0';
-          var self = this + '';
-          return Math.pow( 10, (len || 2) - self.length)
-                    .toString()
-                    .replace(/0/g, padchr)
-                    .slice(1) + self;
+      Function.args2Arr = function (args) {
+        return Array.apply([], {length: args.length}).map( function (v, i) { return this[i]; }, args);
       };
 
       // run functions sequentially
       Function.prototype.andThen = function () {
-       var args = args2Array(arguments)
+       var args = Function.args2Arr(arguments)
           ,next = args.slice(1);
        this();
        return args[0] && next.length
@@ -195,6 +105,92 @@ function initHelpers(w, d, undefined) {
         };
       };
 
+      Boolean.prototype.yn = function () { return false == this ? 'no' : 'yes'; };
+
+      Number.prototype.toRange = Number.prototype.toRange || function (fn, startvalue) {
+        startvalue = startvalue || 0;
+        fn = Object.isOfType(fn, Function) ? fn : function (a,i) { return i+startvalue; };
+        return String(new Array(this.valueOf())).split(',').map( fn );
+      };
+
+      Number.prototype.pretty = function (usa, noprecision) {
+            var somenum = this
+               ,dec = (''+somenum).split(/[.,]/)
+               ,lendec = dec[1] ? dec[1].length : 0
+               ,precision = lendec && !noprecision ? decPrecise(somenum,lendec) : dec[1]
+               ,sep = usa ? ',' : '.'
+               ,decsep = usa ? '.' : ',';
+
+            // from http://stackoverflow.com/questions/10473994/javascript-adding-decimal-numbers-issue/10474209
+            function decPrecise(d,l){
+              return String(d.toFixed(12)).split(/[.,]/)[1].substr(0,l);
+            }
+
+            function xsep(num,sep) {
+              var n = String(num).split('')
+                 ,i = -3;
+              while (n.length + i > 0) {
+                  n.splice(i, 0, sep);
+                  i -= 4;
+              }
+              return n.join('');
+            }
+            return xsep(dec[0],sep) + (dec[1] ? decsep+precision :'');
+      };
+
+      Number.prototype.padLeft = function padLeft(len, padchr){
+          padchr = padchr || '0';
+          var self = this + '';
+          return Math.pow( 10, (len || 2) - self.length)
+                    .toString()
+                    .replace(/0/g, padchr)
+                    .slice(1) + self;
+      };
+
+      // format static
+      String.Format = function(){
+        var args = Function.args2Arr(arguments);
+        return ''.format.apply(args[0],args.slice(1));
+      };
+
+      String.prototype.format = function () {
+        return function (text, args) {
+                  var len       = text.length,
+                      index     = 0,
+                      parsed    = '',
+                      currToken = ''
+                  ;
+                  while (index < len) {
+                    if (text[index] === '{' && !isNaN(text[index + 1]) ) {
+                      index += 1;
+                      currToken = '';
+                      var istoken = true;
+                      while (text[index] !==  '}' ) {
+                        if (isNaN(+text[index]) || /\s/i.test(text[index])) {
+                          istoken = false;
+                          break;
+                        }
+                        currToken += text[index];
+                        index += 1;
+                      }
+                      parsed += istoken && args[+currToken] || '{' + currToken + (text[index] || '');
+                    } else {
+                      parsed += text[index];
+                    }
+                    index += 1;
+                  }
+                  return parsed;
+               }(this, arguments);
+      };
+
+      String.prototype.repeat = function(n){
+        var s = this, r = '';
+        while(n--) {
+            r += s;
+        }
+        return r;
+      };
+
       // is character @ [atpos] upperCase?
       boolean:String.prototype.charIsUpper = function (atpos){
         var chr = this.charAt(atpos);
@@ -208,6 +204,16 @@ function initHelpers(w, d, undefined) {
       String.prototype.isValidEmail = function() {
         // should be sufficient
         return  /^[\w._-]{1,}[+]?[\w._-]{0,}@[\w.-]+\.[a-zA-Z]{2,6}$/.test(this);
+      }
+
+      String.prototype.reCleanup = function(encodeHTML){
+        var str = encodeHTML ? this.replace(/[\u0080-\u024F]/g, function(a) {return '&#'+a.charCodeAt(0)+';';}) : this;
+        return str.replace(/[?*|.+$\/]|\\/g, function(c) {return c==='\\' ? '' : '\\\\'+c;});
+      }
+
+      String.joinStrings = function(joinstr){
+        joinchar = joinchar || '';
+        return Function.args2Arr(arguments).slice(1).join(joinstr);
       }
 
       Array.prototype.toRE = function (){
@@ -228,16 +234,6 @@ function initHelpers(w, d, undefined) {
         return cbxs;
       };
 
-      String.prototype.reCleanup = function(encodeHTML){
-        var str = encodeHTML ? this.replace(/[\u0080-\u024F]/g, function(a) {return '&#'+a.charCodeAt(0)+';';}) : this;
-        return str.replace(/[?*|.+$\/]|\\/g, function(c) {return c==='\\' ? '' : '\\\\'+c;});
-      }
-
-      String.concat = function(joinchar){
-        joinchar = joinchar || '';
-        return args2Array(arguments).join(joinchar);
-      }
-
       // MDN Array filter polyfill
       if (!Array.prototype.filter) {
         Array.prototype.filter = function(fun)
@@ -247,7 +243,7 @@ function initHelpers(w, d, undefined) {
 
           var t = Object(this);
           var len = t.length >>> 0;
-          if (!isOfType(fun, Function))
+          if (!Object.isOfType(fun, Function))
             throw new TypeError();
 
           var res = [];
@@ -264,6 +260,14 @@ function initHelpers(w, d, undefined) {
         };
       }
 
+      // remove double values from an array
+      Array.prototype.uniquify = function (arr) {
+        arr = arr || this;
+        return arr.filter(function(val) {
+         return !this[val] ? ((this[val] = true), true) : false;
+        }, {});
+      }
+
       // MDN Array map polyfill
       if (!Array.prototype.map) {
         Array.prototype.map = function(fun)
@@ -273,7 +277,7 @@ function initHelpers(w, d, undefined) {
 
           var t = Object(this);
           var len = t.length >>> 0;
-          if (!isOfType(fun, Function))
+          if (!Object.isOfType(fun, Function))
             throw new TypeError();
 
           var res = new Array(len);
@@ -287,9 +291,18 @@ function initHelpers(w, d, undefined) {
       };
      }
 
-     Array.prototype.uniquify = noDoubles;
-
-     Array.prototype.frequencies = Array.prototype.frequencies || frequencies;
+     // determine value frequencies in an array
+     Array.prototype.frequencies = function (arr) {
+        arr = arr || this;
+        var mapped = {sum: 0};
+        (arr || this).map(function (a){
+            if (!(a in this)) { this[a] = 1; }
+            else { this[a] += 1; }
+            this.sum += 1;
+            return a; }, mapped
+        );
+        return mapped;
+      };
 
      Array.prototype.each = Array.prototype.each || function (fn,rewrite) {
       for (var i = 0; i < this.length; i++) {
@@ -321,7 +334,17 @@ function initHelpers(w, d, undefined) {
       return '<div class="objformat">'+JSON.stringify(obj, null, space)+'</div>';
      }
 
-     Object.ofType = isOfType;
+     // see: http://codereview.stackexchange.com/questions/23317/istypeobj-gettypeobj-v0/23329#23329
+     Object.ofType = function (obj) {
+          if (!obj) { return false; }
+          var test = arguments.length ? Function.args2Arr(arguments).slice(1) : null
+             ,self = obj.constructor;
+          return test
+                 ? !!(test.filter(function(a){return a === self}).length)
+                 : (self.constructor.name ||
+                    (String(self).match ( /^function\s*([^\s(]+)/im)
+                      || [0,'ANONYMOUS_CONSTRUCTOR']) [1] );
+     };
 
      extended = true;
      return extended;
@@ -397,7 +420,7 @@ function initHelpers(w, d, undefined) {
           return r;
         }();
     var entry = createElementWithProps('p');
-    entry.innerHTML = args2Array(arguments).join('');
+    entry.innerHTML = Function.args2Arr(arguments).join('');
     report.appendChild(entry);
 
     if (useCustomCss) {
@@ -413,7 +436,7 @@ function initHelpers(w, d, undefined) {
                      var r = createElementWithProps('div', {id: 'result'});
                      document.body.appendChild(r);
                      return r; }()
-       ,args = args2Array(arguments)
+       ,args = Function.args2Arr(arguments)
        ,lastarg = args.slice(-1)[0]
        ,optkeys = /clear|clrscr|direct|opts|useopts|continuous/i
        ,opts = Object.ofType(lastarg, Object) &&
@@ -446,7 +469,7 @@ function initHelpers(w, d, undefined) {
   }
 
   function printDirect() {
-    return log2Screen.apply( null, args2Array(arguments).concat({direct:true}) );
+    return log2Screen.apply( null, Function.args2Arr(arguments).concat({direct:true}) );
   }
 
   function screenClear() {
@@ -457,7 +480,7 @@ function initHelpers(w, d, undefined) {
   // utilities
   function createElementWithProps(elType, props) {
     var el = d.createElement(elType);
-    if (props && isOfType(props, Object)) {
+    if (props && Object.isOfType(props, Object)) {
       for (var l in props) {
         if (!props.hasOwnProperty(l)) continue;
         if (/style/i.test(l)) {
@@ -473,32 +496,14 @@ function initHelpers(w, d, undefined) {
     return el;
   }
 
-  function args2Array(args, sliceAt){
-    var arr = [];
-    while (arr.length < args.length) { arr.push(args[arr.length]); }
-    return sliceAt ? arr.slice(sliceAt) : arr;
-  }
-
-  // see: http://codereview.stackexchange.com/questions/23317/istypeobj-gettypeobj-v0/23329#23329
-  function isOfType(obj) {
-    if (!obj) { return false; }
-    var test = arguments.length ? args2Array(arguments).slice(1) : null
-       ,self = obj.constructor;
-    return test
-           ? !!(test.filter(function(a){return a === self}).length)
-           : (self.constructor.name ||
-              (String(self).match ( /^function\s*([^\s(]+)/im)
-                || [0,'ANONYMOUS_CONSTRUCTOR']) [1] );
-  };
-
   function Partial (func) {
-    this.initial = args2Array(arguments, 1);
+    this.initial = Function.args2Arr(arguments, 1);
     this.funcp = function () {
                  return func.partialx.apply(func, this.initial);
                 };
     if (!Partial.prototype.x) {
       Partial.prototype.x = function () {
-        return this.funcp().apply(null, args2Array(arguments));
+        return this.funcp().apply(null, Function.args2Arr(arguments));
       };
     }
   };
@@ -524,30 +529,6 @@ function initHelpers(w, d, undefined) {
                : obj instanceof Object
                  ? clone(obj, {})
                  : obj;
-  }
-
-  function sep1000(somenum, usa, noprecision) {
-    var dec = (''+somenum).split(/[.,]/)
-       ,lendec = dec[1] ? dec[1].length : 0
-       ,precision = lendec && !noprecision ? decPrecise(somenum,lendec) : dec[1]
-       ,sep = usa ? ',' : '.'
-       ,decsep = usa ? '.' : ',';
-
-    // from http://stackoverflow.com/questions/10473994/javascript-adding-decimal-numbers-issue/10474209
-    function decPrecise(d,l){
-      return String(d.toFixed(12)).split(/[.,]/)[1].substr(0,l);
-    }
-
-    function xsep(num,sep) {
-      var n = String(num).split('')
-         ,i = -3;
-      while (n.length + i > 0) {
-          n.splice(i, 0, sep);
-          i -= 4;
-      }
-      return n.join('');
-    }
-    return xsep(dec[0],sep) + (dec[1] ? decsep+precision :'');
   }
 
   function randomID() {
