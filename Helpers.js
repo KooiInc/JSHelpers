@@ -78,11 +78,50 @@ function initHelpers(w, d, undefined) {
         }, {});
       }
 
-      function stringformat() {
-        var args = args2Array(arguments);
-        return this.replace(/(\{\d+\})/g, function(a){
-            return args[+(a.substr(1,a.length-2))||0];
-        });
+      String.Format = function(){
+        var args = String(Array(args.length)).split(',').map( function (v, i) { return this[i]; }, arguments);
+        return ''.format.apply(args[0],args.slice(1));
+      };
+
+      String.prototype.format = function () {
+        text = this;
+
+        function parseTokens(line, args) {
+          var len = line.length,
+              index = 0,
+              myline = '',
+              currtoken = '';
+          while (index < len) {
+
+            if (line[index] === '{' && !isNaN(line[index + 1]) ) {
+              index += 1;
+              currtoken = '';
+
+              while (line[index] !==  '}' ) {
+                if (isNaN(+line[index])  || /\s/.test(line[index] || index == len)) {
+                  myline += '{' + currtoken + line[index];
+                  break;
+                }
+                currtoken += line[index];
+                index += 1;
+              }
+              myline += args[+currtoken] || '';
+            } else {
+              myline += line[index];
+            }
+            index += 1;
+          }
+          return myline;
+         }
+        return parseTokens(text, arguments);
+      };
+
+      String.prototype.repeat = function(n){
+        var s = this, r = '';
+        while(n--) {
+            r += s;
+        }
+        return r;
       };
 
       // determine value frequencies in an array
@@ -95,15 +134,6 @@ function initHelpers(w, d, undefined) {
             return a; }, mapped
         );
         return mapped;
-      }
-
-      String.Format = function(){
-        var args = args2Array(arguments);
-        return stringformat.apply(args[0],args.slice(1));
-      };
-
-      String.prototype.format = function () {
-        return stringformat.apply(this,arguments);
       }
 
       String.prototype.repeat = function(n){
@@ -124,6 +154,15 @@ function initHelpers(w, d, undefined) {
 
       Number.prototype.pretty = Number.prototype.pretty || function (usa, noprecision) {
         return sep1000(this, usa, noprecision);
+      };
+
+      Number.prototype.padLeft = function padLeft(len, padchr){
+          padchr = padchr || '0';
+          var self = this + '';
+          return Math.pow( 10, (len || 2) - self.length)
+                    .toString()
+                    .replace(/0/g, padchr)
+                    .slice(1) + self;
       };
 
       // run functions sequentially
@@ -524,7 +563,7 @@ function initHelpers(w, d, undefined) {
     w.addEventListener('load', SOInit);
   }
 
-    // simple date extenter
+  // simple date extenter
   // add languages if necessary
   function useDTF(lang) {
     lang = lang || 'NL';
@@ -665,17 +704,6 @@ function initHelpers(w, d, undefined) {
           return base;
         }
 
-        function padLeft(base, chr) {
-          var len = (String(base || 10).length - String(this).length) + 1;
-          return len > 0 ? new Array(len).join(chr || '0') + this : this;
-         }
-
-        // alternative
-        function padLeftZero(len){
-          var self = this+'';
-          return (Math.pow( 10, (len || 2)-self.length) + self).slice(1);
-        }
-
         function format(fstr) {
           fstr = fstr || this.strformat || 'yyyy/mm/dd hh:mi:ss';
           var dd = d2frags.call(this);
@@ -689,7 +717,16 @@ function initHelpers(w, d, undefined) {
          return this;
         }
 
-        Number.prototype.padLeft = Number.prototype.padLeft || padLeftZero;
+        Number.prototype.padLeft = Number.prototype.padLeft ||
+          function (len, padchr) {
+              padchr = padchr || '0';
+              var self = this + '';
+              return Math.pow( 10, (len || 2) - self.length)
+                        .toString()
+                        .replace(/0/g, padchr)
+                        .slice(1) + self;
+          };
+
         // add stuff to Date.prototype
         Date.prototype.language       = lang.toUpperCase();
         Date.prototype.setFormat      = function(f){this.strformat = f; return this;}
