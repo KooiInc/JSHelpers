@@ -78,42 +78,42 @@ function initHelpers(w, d, undefined) {
         }, {});
       }
 
+      // format static
       String.Format = function(){
-        var args = String(Array(args.length)).split(',').map( function (v, i) { return this[i]; }, arguments);
+        var args = String(Array(arguments.length)).split(',').map( function (v, i) { return this[i]; }, arguments);
         return ''.format.apply(args[0],args.slice(1));
       };
 
       String.prototype.format = function () {
-        text = this;
-
-        function parseTokens(line, args) {
-          var len = line.length,
-              index = 0,
-              myline = '',
-              currtoken = '';
+        function parseTokens(text, args) {
+          var len       = text.length,
+              index     = 0,
+              parsed    = '',
+              currToken = '';
           while (index < len) {
 
-            if (line[index] === '{' && !isNaN(line[index + 1]) ) {
+            if (text[index] === '{' && !isNaN(text[index + 1]) ) {
               index += 1;
-              currtoken = '';
+              currToken = '';
 
-              while (line[index] !==  '}' ) {
-                if (isNaN(+line[index])  || /\s/.test(line[index] || index == len)) {
-                  myline += '{' + currtoken + line[index];
+              while (text[index] !==  '}' ) {
+                if (isNaN(+text[index])  || /\s/.test(text[index] || index == len)) {
+                  myline += '{' + currToken + text[index];
                   break;
                 }
-                currtoken += line[index];
+                currToken += text[index];
                 index += 1;
               }
-              myline += args[+currtoken] || '';
+              parsed += args[+currToken] || '';
             } else {
-              myline += line[index];
+              parsed += text[index];
             }
             index += 1;
           }
-          return myline;
-         }
-        return parseTokens(text, arguments);
+          return parsed;
+        }
+
+        return parseTokens(this, arguments);
       };
 
       String.prototype.repeat = function(n){
