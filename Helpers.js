@@ -70,13 +70,40 @@ function initHelpers(w, d, undefined) {
       if (extended) {
         return true;
       }
-      // remove double values from an array
-      function noDoubles(arr) {
-        arr = arr || this;
-        return arr.filter(function(val) {
-         return !this[val] ? ((this[val] = true), true) : false;
-        }, {});
-      }
+
+      Function.args2Arr = function (args) {
+        return Array.apply([], {length: args.length}).map( function (v, i) { return this[i]; }, args);
+      };
+
+      // run functions sequentially
+      Function.prototype.andThen = function () {
+       var args = Function.args2Arr(arguments)
+          ,next = args.slice(1);
+       this();
+       return args[0] && next.length
+               ? args[0].andThen.apply(args[0], next)
+               : args.length == 1  ? args[0]()
+               : true;
+      };
+
+      Function.prototype.partial = Function.prototype.partial || function () {
+        var stored_args = [].slice.call(arguments)
+           ,fn = this;
+        return function () {
+           return fn.apply(null, stored_args.concat([].slice.call(arguments)));
+        };
+      };
+
+      Function.prototype.partialx = function(){
+        var fn = this, args = Array.prototype.slice.call(arguments);
+        return function(){
+          var arg = 0;
+          for ( var i = 0; i < args.length && arg < arguments.length; i++ )
+            if ( args[i] === undefined || args[i] === null)
+              args[i] = arguments[arg++];
+          return fn.apply(this, args);
+        };
+      };
 
       // format static
       String.Format = function(){
@@ -124,18 +151,6 @@ function initHelpers(w, d, undefined) {
         return r;
       };
 
-      // determine value frequencies in an array
-      function frequencies(arr) {
-        var mapped = {sum: 0};
-        (arr || this).map(function (a){
-            if (!(a in this)) { this[a] = 1; }
-            else { this[a] += 1; }
-            this.sum += 1;
-            return a; }, mapped
-        );
-        return mapped;
-      }
-
       String.prototype.repeat = function(n){
         var s = this, r = '';
         while(n--) {
@@ -163,36 +178,6 @@ function initHelpers(w, d, undefined) {
                     .toString()
                     .replace(/0/g, padchr)
                     .slice(1) + self;
-      };
-
-      // run functions sequentially
-      Function.prototype.andThen = function () {
-       var args = args2Array(arguments)
-          ,next = args.slice(1);
-       this();
-       return args[0] && next.length
-               ? args[0].andThen.apply(args[0], next)
-               : args.length == 1  ? args[0]()
-               : true;
-      };
-
-      Function.prototype.partial = Function.prototype.partial || function () {
-        var stored_args = [].slice.call(arguments)
-           ,fn = this;
-        return function () {
-           return fn.apply(null, stored_args.concat([].slice.call(arguments)));
-        };
-      };
-
-      Function.prototype.partialx = function(){
-        var fn = this, args = Array.prototype.slice.call(arguments);
-        return function(){
-          var arg = 0;
-          for ( var i = 0; i < args.length && arg < arguments.length; i++ )
-            if ( args[i] === undefined || args[i] === null)
-              args[i] = arguments[arg++];
-          return fn.apply(this, args);
-        };
       };
 
       // is character @ [atpos] upperCase?
@@ -235,7 +220,7 @@ function initHelpers(w, d, undefined) {
 
       String.concat = function(joinchar){
         joinchar = joinchar || '';
-        return args2Array(arguments).join(joinchar);
+        return Function.args2Arr(arguments).join(joinchar);
       }
 
       // MDN Array filter polyfill
@@ -264,6 +249,14 @@ function initHelpers(w, d, undefined) {
         };
       }
 
+      // remove double values from an array
+      Array.prototype.uniquify = function (arr) {
+        arr = arr || this;
+        return arr.filter(function(val) {
+         return !this[val] ? ((this[val] = true), true) : false;
+        }, {});
+      }
+
       // MDN Array map polyfill
       if (!Array.prototype.map) {
         Array.prototype.map = function(fun)
@@ -287,9 +280,18 @@ function initHelpers(w, d, undefined) {
       };
      }
 
-     Array.prototype.uniquify = noDoubles;
-
-     Array.prototype.frequencies = Array.prototype.frequencies || frequencies;
+     // determine value frequencies in an array
+     Array.prototype.frequencies = function (arr) {
+        arr = arr || this;
+        var mapped = {sum: 0};
+        (arr || this).map(function (a){
+            if (!(a in this)) { this[a] = 1; }
+            else { this[a] += 1; }
+            this.sum += 1;
+            return a; }, mapped
+        );
+        return mapped;
+      };
 
      Array.prototype.each = Array.prototype.each || function (fn,rewrite) {
       for (var i = 0; i < this.length; i++) {
@@ -397,7 +399,7 @@ function initHelpers(w, d, undefined) {
           return r;
         }();
     var entry = createElementWithProps('p');
-    entry.innerHTML = args2Array(arguments).join('');
+    entry.innerHTML = Function.args2Arr(arguments).join('');
     report.appendChild(entry);
 
     if (useCustomCss) {
@@ -413,7 +415,7 @@ function initHelpers(w, d, undefined) {
                      var r = createElementWithProps('div', {id: 'result'});
                      document.body.appendChild(r);
                      return r; }()
-       ,args = args2Array(arguments)
+       ,args = Function.args2Arr(arguments)
        ,lastarg = args.slice(-1)[0]
        ,optkeys = /clear|clrscr|direct|opts|useopts|continuous/i
        ,opts = Object.ofType(lastarg, Object) &&
@@ -446,7 +448,7 @@ function initHelpers(w, d, undefined) {
   }
 
   function printDirect() {
-    return log2Screen.apply( null, args2Array(arguments).concat({direct:true}) );
+    return log2Screen.apply( null, Function.args2Arr(arguments).concat({direct:true}) );
   }
 
   function screenClear() {
@@ -473,16 +475,10 @@ function initHelpers(w, d, undefined) {
     return el;
   }
 
-  function args2Array(args, sliceAt){
-    var arr = [];
-    while (arr.length < args.length) { arr.push(args[arr.length]); }
-    return sliceAt ? arr.slice(sliceAt) : arr;
-  }
-
   // see: http://codereview.stackexchange.com/questions/23317/istypeobj-gettypeobj-v0/23329#23329
   function isOfType(obj) {
     if (!obj) { return false; }
-    var test = arguments.length ? args2Array(arguments).slice(1) : null
+    var test = arguments.length ? Function.args2Arr(arguments).slice(1) : null
        ,self = obj.constructor;
     return test
            ? !!(test.filter(function(a){return a === self}).length)
@@ -492,13 +488,13 @@ function initHelpers(w, d, undefined) {
   };
 
   function Partial (func) {
-    this.initial = args2Array(arguments, 1);
+    this.initial = Function.args2Arr(arguments, 1);
     this.funcp = function () {
                  return func.partialx.apply(func, this.initial);
                 };
     if (!Partial.prototype.x) {
       Partial.prototype.x = function () {
-        return this.funcp().apply(null, args2Array(arguments));
+        return this.funcp().apply(null, Function.args2Arr(arguments));
       };
     }
   };
