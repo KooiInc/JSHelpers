@@ -78,11 +78,50 @@ function initHelpers(w, d, undefined) {
         }, {});
       }
 
-      function stringformat() {
-        var args = args2Array(arguments);
-        return this.replace(/(\{\d+\})/g, function(a){
-            return args[+(a.substr(1,a.length-2))||0];
-        });
+      String.Format = function(){
+        var args = String(Array(args.length)).split(',').map( function (v, i) { return this[i]; }, arguments);
+        return ''.format.apply(args[0],args.slice(1));
+      };
+
+      String.prototype.format = function () {
+        text = this;
+
+        function parseTokens(line, args) {
+          var len = line.length,
+              index = 0,
+              myline = '',
+              currtoken = '';
+          while (index < len) {
+
+            if (line[index] === '{' && !isNaN(line[index + 1]) ) {
+              index += 1;
+              currtoken = '';
+
+              while (line[index] !==  '}' ) {
+                if (isNaN(+line[index])  || /\s/.test(line[index] || index == len)) {
+                  myline += '{' + currtoken + line[index];
+                  break;
+                }
+                currtoken += line[index];
+                index += 1;
+              }
+              myline += args[+currtoken] || '';
+            } else {
+              myline += line[index];
+            }
+            index += 1;
+          }
+          return myline;
+         }
+        return parseTokens(text, arguments);
+      };
+
+      String.prototype.repeat = function(n){
+        var s = this, r = '';
+        while(n--) {
+            r += s;
+        }
+        return r;
       };
 
       // determine value frequencies in an array
@@ -95,15 +134,6 @@ function initHelpers(w, d, undefined) {
             return a; }, mapped
         );
         return mapped;
-      }
-
-      String.Format = function(){
-        var args = args2Array(arguments);
-        return stringformat.apply(args[0],args.slice(1));
-      };
-
-      String.prototype.format = function () {
-        return stringformat.apply(this,arguments);
       }
 
       String.prototype.repeat = function(n){
