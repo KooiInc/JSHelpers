@@ -161,18 +161,18 @@ function initHelpers(w, d, undefined) {
                       currToken = ''
                   ;
                   while (index < len) {
-                    if (text[index] === '{' && !isNaN(text[index + 1]) ) {
-                      index += 1;
-                      currToken = '';
-                      var istoken = true;
-                      while (text[index] !==  '}' ) {
-                        if (isNaN(+text[index]) || /\s/i.test(text[index])) {
-                          istoken = false;
-                          break;
-                        }
-                        currToken += text[index];
-                        index += 1;
+                    if (text[index] === '{' && !isNaN( parseInt(text[index + 1],10) ) ) {
+                index += 1;
+                currToken = '';
+                var istoken = true;
+                while (text[index] !==  '}' ) {
+                    if (isNaN(parseInt(text[index],10))) {
+                        istoken = false;
+                        break;
                       }
+                      currToken += text[index];
+                      index += 1;
+                    }
                       parsed += istoken && args[+currToken] || '{' + currToken + (text[index] || '');
                     } else {
                       parsed += text[index];
