@@ -335,7 +335,7 @@ function initHelpers(w, d, undefined) {
      }
 
      // see: http://codereview.stackexchange.com/questions/23317/istypeobj-gettypeobj-v0/23329#23329
-     Object.ofType = function (obj) {
+     Object.isOfType = function (obj) {
           if (!obj) { return false; }
           var test = arguments.length ? Function.args2Arr(arguments).slice(1) : null
              ,self = obj.constructor;
