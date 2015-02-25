@@ -439,7 +439,7 @@ function initHelpers(w, d, undefined) {
        ,args = Function.args2Arr(arguments)
        ,lastarg = args.slice(-1)[0]
        ,optkeys = /clear|clrscr|direct|opts|useopts|continuous/i
-       ,opts = Object.ofType(lastarg, Object) &&
+       ,opts = Object.isOfType(lastarg, Object) &&
                Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length
                 ? lastarg.opts instanceof Object ? lastarg.opts : lastarg
                 : {empty: 1}
