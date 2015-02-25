@@ -337,11 +337,11 @@ function initHelpers(w, d, undefined) {
      // see: http://codereview.stackexchange.com/questions/23317/istypeobj-gettypeobj-v0/23329#23329
      Object.isOfType = function (obj) {
           if (!obj) { return false; }
-          var test = arguments.length ? Function.args2Arr(arguments).slice(1) : null
+          var test = arguments.length>1 ? Function.args2Arr(arguments).slice(1) : []
              ,self = obj.constructor;
-          return test
+          return (test).length
                  ? !!(test.filter(function(a){return a === self}).length)
-                 : (self.constructor.name ||
+                 : (self.name ||
                     (String(self).match ( /^function\s*([^\s(]+)/im)
                       || [0,'ANONYMOUS_CONSTRUCTOR']) [1] );
      };
