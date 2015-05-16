@@ -346,6 +346,8 @@ function initHelpers(w, d, undefined) {
                       || [0,'ANONYMOUS_CONSTRUCTOR']) [1] );
      };
 
+     Object.ofType = Object.isOfType;
+
      extended = true;
      return extended;
   }
