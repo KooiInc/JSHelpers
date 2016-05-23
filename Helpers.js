@@ -5,7 +5,7 @@ function initHelpers(w, d, undefined) {
   var useCustomCss = false;
   var extended = extensions();
   // note: git links are case sensitive
-  var pathToCss = 'http://kooiinc.github.io/JSHelpers/Helpers.css';
+  var pathToCss = '//kooiinc.github.io/JSHelpers/Helpers.css';
 
   var helperObj = {             // Helpers methods:
     report: reportHTML,         // - simple reporting
@@ -373,7 +373,7 @@ function initHelpers(w, d, undefined) {
 
       $.ajax(
         {
-            url: 'http://www.nicon.nl/node/stackx/questionx',
+            url: '//www.nicon.nl/node/stackx/questionx',
             data: {qid: $('.solink').first().attr('data-linkid')},
             method: 'post',
             success: SOcb
