@@ -95,6 +95,11 @@ img.profileimg {
     transition: all ease-out 0.4s 0s;
 }
 
+.linkhover.waiting:before {
+    color: #C0C0C0;
+    content: 'Fetching information, please wait ...';
+}
+
 .solink:hover .linkhover {
     visibility: visible;
     opacity: 1;

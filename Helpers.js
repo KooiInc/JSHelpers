@@ -192,38 +192,38 @@ function initHelpers(w, d, undefined) {
       };
 
       // is character @ [atpos] upperCase?
-      boolean:String.prototype.charIsUpper = function (atpos){
+      String.prototype.charIsUpper = function (atpos){
         var chr = this.charAt(atpos);
         return /[A-Z]|[\u0080-\u024F]/.test(chr) && chr === chr.toUpperCase();
       };
 
       String.prototype.firstUp = function () {
         return this.slice(0,1).toUpperCase()+this.slice(1).toLowerCase();
-      }
+      };
 
       String.prototype.isValidEmail = function() {
         // should be sufficient
         return  /^[\w._-]{1,}[+]?[\w._-]{0,}@[\w.-]+\.[a-zA-Z]{2,6}$/.test(this);
-      }
+      };
 
       String.prototype.reCleanup = function(encodeHTML){
         var str = encodeHTML ? this.replace(/[\u0080-\u024F]/g, function(a) {return '&#'+a.charCodeAt(0)+';';}) : this;
         return str.replace(/[?*|.+$\/]|\\/g, function(c) {return c==='\\' ? '' : '\\\\'+c;});
-      }
+      };
 
       String.joinStrings = function(joinstr){
         joinchar = joinchar || '';
         return Function.args2Arr(arguments).slice(1).join(joinstr);
-      }
+      };
 
       Array.prototype.toRE = function (){
         try { return RegExp.apply(null, this); }
         catch(e) { return /.*/; }
-      }
+      };
 
       Array.toRE = function(arr) {
         return ([].toRE.call(arr));
-      }
+      };
 
       Array.prototype.toCheckboxValues = Array.prototype.toCheckboxValues || function (checked) {
         checked = checked || [];
@@ -266,7 +266,7 @@ function initHelpers(w, d, undefined) {
         return arr.filter(function(val) {
          return !this[val] ? ((this[val] = true), true) : false;
         }, {});
-      }
+      };
 
       // MDN Array map polyfill
       if (!Array.prototype.map) {
@@ -327,12 +327,12 @@ function initHelpers(w, d, undefined) {
      Object.print = function (obj, space) {
       space = space || '  ';
       return '<pre class="code">'+JSON.stringify(obj, null, space)+'</pre>';
-     }
+     };
 
      Object.format = function (obj, space) {
       space = space || '  ';
       return '<div class="objformat">'+JSON.stringify(obj, null, space)+'</div>';
-     }
+     };
 
      // see: http://codereview.stackexchange.com/questions/23317/istypeobj-gettypeobj-v0/23329#23329
      Object.isOfType = function (obj) {
@@ -356,16 +356,17 @@ function initHelpers(w, d, undefined) {
   function SOInit() {
     var solink = d.querySelector('[data-linkid]');
     if (solink && !solink.querySelector('.linkhover')) {
-      solink.appendChild(createElementWithProps('div', { className: 'linkhover', 'data-dyn': 'true' } ));
+      solink.appendChild(createElementWithProps('div', { className: 'linkhover waiting', 'data-dyn': 'true' } ));
     }
 
     loadJQ( jqcallback );
 
     function jqcallback() {
+       $('.linkhover').removeClass('waiting');
        $('#helperload').fadeOut(900);
        $(document).on('mouseover', '.solink',  setSOLink);
        $(document).on('click', '[data-link]', clicklink);
-    };
+    }
   }
 
   function setSOLink(e) {
@@ -508,9 +509,8 @@ function initHelpers(w, d, undefined) {
         return this.funcp().apply(null, Function.args2Arr(arguments));
       };
     }
-  };
-
-  function cloneObj(obj) {
+  }
+    function cloneObj(obj) {
     // clone the whole enchillada, recursive
     function clone(o, curr) {
         for (var l in o){
@@ -712,7 +712,7 @@ function initHelpers(w, d, undefined) {
 
         // add stuff to Date.prototype
         Date.prototype.language       = lang.toUpperCase();
-        Date.prototype.setFormat      = function(f){this.strformat = f; return this;}
+        Date.prototype.setFormat      = function(f){this.strformat = f; return this;};
         Date.prototype.changeLanguage = chngLang;
         Date.prototype.set            = dateset;
         Date.prototype.add            = dateadd;
