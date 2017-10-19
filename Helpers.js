@@ -376,7 +376,7 @@ function initHelpers(w, d, undefined) {
         {
             url: '//www.nicon.nl/node/stackx/questionx',
             data: {qid: $('.solink').first().attr('data-linkid')},
-            method: 'post',
+            method: 'get',
             success: SOcb
         }
       );
