@@ -35,15 +35,16 @@ function initHelpers(w, d, undefined) {
         return callback && Object.ofType(callback, Function) ? callback() : true;
       }
 
-      var jqel  = createElementWithProps( 'script',
-                                          { src: '//code.jquery.com/jquery-2.1.1.min.js', id: 'jqloaded' } );
+      var jqel  = createElementWithProps(
+          'script',
+          { src: '//code.jquery.com/jquery-2.1.1.min.js', id: 'jqloaded' }
+      );
 
       d.querySelector('head').appendChild(jqel);
 
-      if (callback && Object.isOfType(callback, Function))
+      if (callback && Object.isOfType(callback, Function)){
           jqel.addEventListener('load', callback);
-
-      return void(0);
+      }
   }
 
   function loadCSS() {
@@ -77,18 +78,19 @@ function initHelpers(w, d, undefined) {
 
       // run functions sequentially
       Function.prototype.andThen = function () {
-       var args = Function.args2Arr(arguments)
-          ,next = args.slice(1);
+       var args = Function.args2Arr(arguments);
+       var next = args.slice(1);
        this();
-       return args[0] && next.length
-               ? args[0].andThen.apply(args[0], next)
-               : args.length == 1  ? args[0]()
-               : true;
+       return args[0] && next.length ?
+          args[0].andThen.apply(args[0], next) :
+          args.length === 1 ?
+            args[0]() :
+            true;
       };
 
       Function.prototype.partial = Function.prototype.partial || function () {
-        var stored_args = [].slice.call(arguments)
-           ,fn = this;
+        var stored_args = [].slice.call(arguments);
+        var fn = this;
         return function () {
            return fn.apply(null, stored_args.concat([].slice.call(arguments)));
         };
@@ -98,14 +100,16 @@ function initHelpers(w, d, undefined) {
         var fn = this, args = Array.prototype.slice.call(arguments);
         return function(){
           var arg = 0;
-          for ( var i = 0; i < args.length && arg < arguments.length; i++ )
-            if ( args[i] === undefined || args[i] === null)
+          for ( var i = 0; i < args.length && arg < arguments.length; i++ ) {
+            if (args[i] === undefined || args[i] === null) {
               args[i] = arguments[arg++];
+            }
+          }
           return fn.apply(this, args);
         };
       };
 
-      Boolean.prototype.yn = function () { return false == this ? 'no' : 'yes'; };
+      Boolean.prototype.yn = function () { return false === this ? 'no' : 'yes'; };
 
       Number.prototype.toRange = Number.prototype.toRange || function (fn, startvalue) {
         startvalue = startvalue || 0;
@@ -114,12 +118,12 @@ function initHelpers(w, d, undefined) {
       };
 
       Number.prototype.pretty = function (usa, noprecision) {
-            var somenum = this
-               ,dec = (''+somenum).split(/[.,]/)
-               ,lendec = dec[1] ? dec[1].length : 0
-               ,precision = lendec && !noprecision ? decPrecise(somenum,lendec) : dec[1]
-               ,sep = usa ? ',' : '.'
-               ,decsep = usa ? '.' : ',';
+            var somenum = this;
+            var dec = (''+somenum).split(/[.,]/);
+            var lendec = dec[1] ? dec[1].length : 0;
+            var precision = lendec && !noprecision ? decPrecise(somenum,lendec) : dec[1];
+            var sep = usa ? ',' : '.';
+            var decsep = usa ? '.' : ',';
 
             // from http://stackoverflow.com/questions/10473994/javascript-adding-decimal-numbers-issue/10474209
             function decPrecise(d,l){
@@ -238,26 +242,24 @@ function initHelpers(w, d, undefined) {
       if (!Array.prototype.filter) {
         Array.prototype.filter = function(fun)
         {
-          if (this === void 0 || this === null)
-            throw new TypeError();
+          if (this === void 0 || this === null) { throw new TypeError(); }
 
           var t = Object(this);
-          var len = t.length >>> 0;
-          if (!Object.isOfType(fun, Function))
-            throw new TypeError();
+          var len = t.length >>> 0; // jshint ignore:line
+          if (!Object.isOfType(fun, Function)) { throw new TypeError(); }
 
           var res = [];
           var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
           for (var i = 0; i < len; i++) {
-            if (i in t)  {
+            if (i in t) {
               var val = t[i];
-              if (fun.call(thisArg, val, i, t))
+              if (fun.call(thisArg, val, i, t)) {
                 res.push(val);
+              }
             }
           }
-
           return res;
-        };
+        }
       }
 
       // remove double values from an array
@@ -272,21 +274,15 @@ function initHelpers(w, d, undefined) {
       if (!Array.prototype.map) {
         Array.prototype.map = function(fun)
         {
-          if (this === void 0 || this === null)
-            throw new TypeError();
-
+          if (this === void 0 || this === null) { throw new TypeError(); }
           var t = Object(this);
-          var len = t.length >>> 0;
-          if (!Object.isOfType(fun, Function))
-            throw new TypeError();
-
+          var len = t.length >>> 0; // jshint ignore:line
+          if (!Object.isOfType(fun, Function)) { throw new TypeError(); }
           var res = new Array(len);
           var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
           for (var i = 0; i < len; i++) {
-            if (i in t)
-              res[i] = fun.call(thisArg, t[i], i, t);
+            if (i in t) {  res[i] = fun.call(thisArg, t[i], i, t); }
           }
-
           return res;
       };
      }
@@ -339,11 +335,9 @@ function initHelpers(w, d, undefined) {
           if (!obj) { return false; }
           var test = arguments.length>1 ? Function.args2Arr(arguments).slice(1) : []
              ,self = obj.constructor;
-          return (test).length
-                 ? !!(test.filter(function(a){return a === self}).length)
-                 : (self.name ||
-                    (String(self).match ( /^function\s*([^\s(]+)/im)
-                      || [0,'ANONYMOUS_CONSTRUCTOR']) [1] );
+          return (test).length ?
+                  !!(test.filter(function(a){return a === self}).length) :
+                  self.name || (String(self).match ( /^function\s*([^\s(]+)/im) || [0,'ANONYMOUS_CONSTRUCTOR'])[1];
      };
 
      Object.ofType = Object.isOfType;
@@ -370,7 +364,7 @@ function initHelpers(w, d, undefined) {
   }
 
   function setSOLink(e) {
-      if ($(this).attr('data-link')) { return true; }
+      if ($(this).attr('data-link')) { return true; } // jshint ignore:line
 
       $.ajax(
         {
@@ -382,10 +376,9 @@ function initHelpers(w, d, undefined) {
       );
 
       function SOcb(data) {
-          var resp = data.items && data.items[0] || data
-             ,linkelement = $('.solink').first()
-             ,linktip = linkelement.find('.linkhover').first()
-          ;
+          var resp = data.items && data.items[0] || data;
+          var linkelement = $('.solink').first();
+          var linktip = linkelement.find('.linkhover').first();
           linktip.html(
               '<p>Click logo to view the related question:<p><h3>' + resp.title + '</h3>' +
               'Asked by <img class="profileimg" src="' +
@@ -402,8 +395,8 @@ function initHelpers(w, d, undefined) {
   // firefox needs a link added to the DOM, Chrome, IE don't
   function clicklink(e) {
     e.stopPropagation(); //just this link
-    var linkurl = this.getAttribute('data-link')
-       ,xlink = document.querySelector('a[href="'+linkurl+'"]') ||
+    var linkurl = this.getAttribute('data-link');
+    var xlink = document.querySelector('a[href="'+linkurl+'"]') ||
                 function() {
                     var _link = createElementWithProps(
                                   'a', { href: linkurl, target:'_blank', style: { display: 'none' } }
@@ -438,16 +431,15 @@ function initHelpers(w, d, undefined) {
                  function () {
                      var r = createElementWithProps('div', {id: 'result'});
                      document.body.appendChild(r);
-                     return r; }()
-       ,args = Function.args2Arr(arguments)
-       ,lastarg = args.slice(-1)[0]
-       ,optkeys = /clear|clrscr|direct|opts|useopts|continuous/i
-       ,opts = Object.isOfType(lastarg, Object) &&
-               Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length
-                ? lastarg.opts instanceof Object ? lastarg.opts : lastarg
-                : {empty: 1}
-       ,dummy = void(!opts.empty && (args = args.slice(0,-1)))
-    ;
+                     return r; }();
+    var args = Function.args2Arr(arguments);
+    var lastarg = args.slice(-1)[0];
+    var optkeys = /clear|clrscr|direct|opts|useopts|continuous/i;
+    var opts = Object.isOfType(lastarg, Object) &&
+               Object.keys(lastarg).filter(function(v){return optkeys.test(v);}).length ?
+                 lastarg.opts instanceof Object ? lastarg.opts : lastarg :
+                 {empty: 1};
+    var dummy = void(!opts.empty && (args = args.slice(0,-1)));
 
     if (opts.clrscr) {
         return result.innerHTML = '';
