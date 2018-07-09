@@ -27,7 +27,7 @@ body:after {
 
 #result .show {
     opacity: 1;
-    transition: all ease-in 0.8s 0s;
+    transition: all ease-in 0.4s 0s;
 }
 
 #helperload:before {
