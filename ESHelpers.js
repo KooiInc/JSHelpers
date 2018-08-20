@@ -6,7 +6,6 @@
   const pathToCss = "//kooiinc.github.io/JSHelpers/Helpers.css";
   const helperObj = {             // Helpers methods:
     report: reportHTML,         // - simple reporting
-    useJQ: loadJQ,              // - load jquery (2.1.1)
     useCSS: setCustomCss,       // - load custom css (see project)
     log2Screen: log2Screen,     // - more elaborate reporting
     initSO: SOInit,             // - detect Stackoverflow/jsFiddle and initialize
@@ -15,7 +14,10 @@
     Partial: Partial,           // - partially parametrize a function
     cloneObj: cloneObj,         // - clone any object on all levels
     randomID: randomID,         // - a random id for on the fly created elements
-    extendDate: useDTF          // - use custom DateTime-formatting
+    extendDate: useDTF,         // - use custom DateTime-formatting
+    modalMss: ModalMessage,     // - modal messages helper
+    xhr: XHR(),                 // - replaces JQ ajax
+    fader: Fader(),             // - fadeIn/-Out
   };
 
   if (/fiddle|stacksnippets/i.test(self.location.href)) {
@@ -33,23 +35,6 @@
       loadCSS();
     } else {
       unloadCSS();
-    }
-  }
-
-  function loadJQ(callback) {
-    if (w.jQuery) {
-      return callback && Object.ofType(callback, Function) ? callback() : true;
-    }
-
-    const jqel = createElementWithProps(
-      "script",
-      {src: "//code.jquery.com/jquery-2.1.1.min.js", id: "jqloaded"}
-    );
-
-    d.querySelector("head").appendChild(jqel);
-
-    if (callback && Object.isOfType(callback, Function)) {
-      jqel.addEventListener("load", callback);
     }
   }
 
@@ -74,218 +59,6 @@
     return void (css && document.querySelector("head").removeChild(css));
   }
 
-  // a few usefull augments/polyfills
-  function extensions() {
-    if (extended) {
-      return true;
-    }
-
-    Function.args2Arr = function (args) {
-      return Array.apply([], {length: args.length}).map(function (v, i) {
-        return this[i];
-      }, args);
-    };
-
-    // run functions sequentially
-    Function.prototype.andThen = function () {
-      const args = Function.args2Arr(arguments);
-      const next = args.slice(1);
-      this();
-      return args[0] && next.length ?
-        args[0].andThen.apply(args[0], next) :
-        args.length === 1 ?
-          args[0]() :
-          true;
-    };
-
-    Function.prototype.partial = Function.prototype.partial || function () {
-      const stored_args = [].slice.call(arguments);
-      const fn = this;
-      return function () {
-        return fn.apply(null, stored_args.concat([].slice.call(arguments)));
-      };
-    };
-
-    Function.prototype.partialx = function () {
-      const fn = this, args = Array.prototype.slice.call(arguments);
-      return function () {
-        let arg = 0;
-        for (let i = 0; i < args.length && arg < arguments.length; i++) {
-          if (args[i] === undefined || args[i] === null) {
-            args[i] = arguments[arg++];
-          }
-        }
-        return fn.apply(this, args);
-      };
-    };
-
-    Boolean.prototype.yn = function () {
-      return false === this ? "no" : "yes";
-    };
-
-    Number.prototype.toRange = Number.prototype.toRange || function (fn, startvalue) {
-      startvalue = startvalue || 0;
-      fn = Object.isOfType(fn, Function) ? fn : function (a, i) {
-        return i + startvalue;
-      };
-      return String(new Array(this.valueOf())).split(",").map(fn);
-    };
-
-    Number.prototype.pretty = function (usa, noprecision) {
-      const somenum = this;
-      const dec = ("" + somenum).split(/[.,]/);
-      const lendec = dec[1] ? dec[1].length : 0;
-      const precision = lendec && !noprecision ? decPrecise(somenum, lendec) : dec[1];
-      const sep = usa ? "," : ".";
-      const decsep = usa ? "." : ",";
-
-      // from http://stackoverflow.com/questions/10473994/javascript-adding-decimal-numbers-issue/10474209
-      function decPrecise(d, l) {
-        return String(d.toFixed(12)).split(/[.,]/)[1].substr(0, l);
-      }
-
-      function xsep(num, sep) {
-        const n = String(num).split("")
-        ;let i = -3;
-        while (n.length + i > 0) {
-          n.splice(i, 0, sep);
-          i -= 4;
-        }
-        return n.join("");
-      }
-
-      return xsep(dec[0], sep) + (dec[1] ? decsep + precision : "");
-    };
-
-    Number.prototype.padLeft = function padLeft(len, padchr) {
-      padchr = padchr || "0";
-      const self = this + "";
-      return Math.pow(10, (len || 2) - self.length)
-        .toString()
-        .replace(/0/g, padchr)
-        .slice(1) + self;
-    };
-
-    // format static
-    String.Format = function () {
-      const args = Function.args2Arr(arguments);
-      return "".format.apply(args[0], args.slice(1));
-    };
-
-    String.prototype.format = function () {
-      return function (text, args) {
-        const len = text.length;
-        let index = 0,
-          parsed = "",
-          currToken = ""
-        ;
-        while (index < len) {
-          if (text[index] === "{" && !isNaN(parseInt(text[index + 1], 10))) {
-            index += 1;
-            currToken = "";
-            let istoken = true;
-            while (text[index] !== "}") {
-              if (isNaN(parseInt(text[index], 10))) {
-                istoken = false;
-                break;
-              }
-              currToken += text[index];
-              index += 1;
-            }
-            parsed += istoken && args[+currToken] || "{" + currToken + (text[index] || "");
-          } else {
-            parsed += text[index];
-          }
-          index += 1;
-        }
-        return parsed;
-      }(this, arguments);
-    };
-
-    String.prototype.repeat = function (n) {
-      const s = this;
-      let r = "";
-      while (n--) {
-        r += s;
-      }
-      return r;
-    };
-
-    // is character @ [atpos] upperCase?
-    String.prototype.charIsUpper = function (atpos) {
-      const chr = this.charAt(atpos);
-      return /[A-Z]|[\u0080-\u024F]/.test(chr) && chr === chr.toUpperCase();
-    };
-
-    String.prototype.firstUp = function () {
-      return this.slice(0, 1).toUpperCase() + this.slice(1).toLowerCase();
-    };
-
-    String.prototype.isValidEmail = function () {
-      // should be sufficient
-      return /^[\w._-]{1,}[+]?[\w._-]{0,}@[\w.-]+\.[a-zA-Z]{2,6}$/.test(this);
-    };
-
-    String.prototype.reCleanup = function (encodeHTML) {
-      const str = encodeHTML ? this.replace(/[\u0080-\u024F]/g, function (a) {
-        return "&#" + a.charCodeAt(0) + ";";
-      }) : this;
-      return str.replace(/[?*|.+$\/]|\\/g, function (c) {
-        return c === "\\" ? "" : "\\\\" + c;
-      });
-    };
-
-    Array.prototype.toRE = function () {
-      try {
-        return RegExp.apply(null, this);
-      }
-      catch (e) {
-        return /.*/;
-      }
-    };
-
-    Array.toRE = function (arr) {
-      return ([].toRE.call(arr));
-    };
-
-    Array.toCheckboxValues = (checkedIndex = 0, ...checked) => {
-      return checked.reduce( (reduced, value, i) => reduced.concat({check: i === checkedIndex ? 1 : 0, val: String(value)}), []);
-    };
-
-    // determine value frequencies in an array
-    Array.frequencies = arr => {
-      return arr.reduce((reduced, value) => {
-        if (reduced[value]) {
-          reduced[value] += 1;
-        } else {
-          reduced[value] = 1;
-        }
-        reduced.sum += value;
-        return reduced;
-      }, {sum: 0});
-    };
-
-    Object.print = Object.format = (thisObj, space = " ") =>
-      `<pre class="code">${JSON.stringify(thisObj, null, space)}</pre>`;
-
-    // see: http://codereview.stackexchange.com/questions/23317/istypeobj-gettypeobj-v0/23329#23329
-    Object.ofType = Object.isOfType = thisObj => {
-      if (!thisObj) {
-        return false;
-      }
-      const test = arguments.length > 1 ? Function.args2Arr(arguments).slice(1) : [];
-      const self = thisObj.constructor;
-      return (test).length ?
-        !!(test.filter(function (a) {
-          return a === self;
-        }).length) :
-        self.name || (String(self).match(/^function\s*([^\s(]+)/im) || [0, "ANONYMOUS_CONSTRUCTOR"])[1];
-    };
-
-    extended = true;
-    return extended;
-  }
-
   // StackOverflow/jsFiddle special handling
   function SOInit() {
     const solink = d.querySelector("[data-linkid]");
@@ -293,53 +66,63 @@
       solink.appendChild(createElementWithProps("div", {className: "linkhover waiting", "data-dyn": "true"}));
     }
 
-    // todo: weg ermee (JQ)
-    loadJQ(jqcallback);
-
-    function jqcallback() {
-      $(".linkhover").removeClass("waiting");
-      $("#helperload").fadeOut(900);
-      $(document).on("mouseover", ".solink", setSOLink);
-      $(document).on("click", "[data-link]", clicklink);
-    }
+    d.querySelector(".linkhover").classList.remove("waiting");
+    helperObj.fader.fadeOutCB(d.querySelector("#helperload"), 600, () => helperLoader.style.display = "none");
+    w.addEventListener("mouseover", setSOLink);
+    w.addEventListener("click", clickSOLink);
   }
 
-  function setSOLink(e) {
-    if ($(this).attr("data-link")) {
-      return true;
-    } // jshint ignore:line
-
-    $.ajax(
-      {
-        url: "//www.nicon.nl/node/stackx/questionx",
-        data: {qid: $(".solink").first().attr("data-linkid")},
-        method: "get",
-        success: SOcb
-      }
-    );
-
-    function SOcb(data) {
-      const resp = data.items && data.items[0] || data;
-      const linkelement = $(".solink").first();
-      const linktip = linkelement.find(".linkhover").first();
-      linktip.html(
-        "<p>Click logo to view the related question:<p><h3>" + resp.title + "</h3>" +
-        "Asked by <img class=\"profileimg\" src=\"" +
-        resp.owner.profile_image + "\"> <div data-link=\"" +
-        resp.owner.link + "\">" + resp.owner.display_name + "</div>; " +
-        "rep " + resp.owner.reputation + "; question views: " + resp.view_count
-      );
-      linkelement.attr("data-link", resp.link);
+  function setSOLink(evt) {
+    if (!evt.target.dataset.link) {
+      return;
     }
 
-    return true;
+    const SOcb = data => {
+      const resp = data.items && data.items[0] || data;
+      const linkelement = d.querySelector(".solink");
+      const linktip = linkelement.querySelector(".linkhover");
+      linktip.innerHTML = `
+         <p>
+            Click logo to view the related question:
+         </p>
+         <h3>${resp.data.title}</h3>
+            Asked by <img class="profileimg" src="${resp["owner"]["profile_image"]}"> 
+            <div data-link="${resp["owner"].link}>${resp["owner"]["display_name"]}</div>
+            rep ${resp["owner"]["reputation"]}; question views: ${resp["view_count"]}
+         </p>`;
+      linkelement.attr("data-link", resp.link);
+      doneCB();
+    };
+
+    helperObj.xhr(
+      {
+        data: {
+          url: "//www.nicon.nl/node/stackx/questionx",
+          qid: d.querySelector(".solink").dataset.linkid,
+        },
+        done: SOcb,
+      }
+    );
+  }
+
+  function Fader() {
+    const getStyle = (opacity, time) => `opacity:${opacity};transition:opacity linear ${time || 0.8}s 0s;`;
+    const fadeIn = (elem, time) => elem.setAttribute("style", getStyle(1, time));
+    const fadeOut = (elem, time) => elem.setAttribute("style", getStyle(0, time));
+    return {
+      fadeIn: fadeIn,
+      fadeOut: fadeOut,
+      fadeInCB: (elem, time, cb) => (fadeIn(elem, time), cb && setTimeout(cb, time * 1000)),
+      fadeOutCB: (elem, time, cb) => (fadeOut(elem, time), cb && setTimeout(cb, time * 1000)),
+    }
   }
 
   // firefox needs a link added to the DOM, Chrome, IE don't
-  function clicklink(e) {
-    e.stopPropagation(); //just this link
-    const linkurl = this.getAttribute("data-link");
-    const xlink = document.querySelector("a[href=\"" + linkurl + "\"]") ||
+  function clickSOLink(evt) {
+    if (!evt.dataset.link) { return; }
+    evt.stopPropagation(); //just this link
+    const linkurl = evt.target.dataset.link;
+    const xlink = d.querySelector(`a[href="${linkurl}"]`) ||
       function () {
         const _link = createElementWithProps(
           "a", {href: linkurl, target: "_blank", style: {display: "none"}}
@@ -620,12 +403,12 @@
             , regExBuild = []
           ;
 
-          for (var l in ext) {
+          for (let l in ext) {
             if (ext.hasOwnProperty(l)) {
               base[l] = ext[l];
             }
           }
-          for (var l in base) {
+          for (let l in base) {
             if (base.hasOwnProperty(l)) {
               regExBuild.push("(\\b" + l + "\\b)");
             }
@@ -674,6 +457,400 @@
         };
       }());
     }
+  }
+
+  function ModalMessage() {
+    createPopupCss();
+
+    function remove() {
+      d.querySelector(".alertBox").classList.remove("isDone");
+      setTimeout(() => {
+        d.body.removeChild(d.querySelector(".between"));
+        d.body.removeChild(d.querySelector(".alertBox"));
+      }, 300);
+    }
+
+    const modalMssg = {
+      create(message, omitOkBttn) {
+        if (d.querySelector(".alertBox")) {
+          return d.querySelector("#alertOk") ? remove() : true;
+        }
+        let betweenLayer = d.createElement("div");
+        let modalBox = d.createElement("div");
+        modalBox.classList.add("alertBox", "centeredHV");
+        modalBox.innerHTML = `</div>${message}</div>`;
+        betweenLayer.classList.add("between");
+
+        if (!omitOkBttn) {
+          let ok = d.createElement("div");
+          ok.id = "alertOk";
+          ok.classList.add("okHandle");
+          modalBox.insertBefore(ok, modalBox.firstChild);
+        } else {
+          modalBox.classList.add("reallyModal");
+        }
+
+        d.body.appendChild(betweenLayer);
+        d.body.appendChild(modalBox);
+
+        setTimeout(() => modalBox.classList.add("isDone"), 10);
+      },
+      remove: remove
+    };
+
+    d.addEventListener("click", defaultModalRemover);
+
+    return modalMssg;
+
+    function defaultModalRemover(evt) {
+      const fromElement = evt.target;
+      if (fromElement.id === "alertOk" ||
+        d.querySelector("#alertOk") &&
+        fromElement.classList.contains("between")) {
+        modalMssg.remove();
+      }
+    }
+
+    function createPopupCss() {
+      let cssBlock = d.createElement("link");
+      cssBlock.rel = "stylesheet";
+      cssBlock.href = URL.createObjectURL(getCssBlob());
+      d.querySelector("head").appendChild(cssBlock);
+    }
+
+    function getCssBlob() {
+      const cleanup = str =>
+        str.replace(/\n/g, "").replace(/\s{2,}/g, " ").replace(/; /g, ";")
+          .replace(/(}\s)/g, "}").replace(/(\s})/g, "}").replace(/(\s+{)/g, "{")
+          .replace(/({\s+)/g, "{").replace(/: /g, ":");
+      return new Blob([cleanup(`
+      .between {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        overflow: hidden;
+        background-color: white;
+        opacity: 0.5;
+      }
+      .alertBox {
+        min-width: 300px;
+        max-width: 400px;
+        max-height: 400px;
+        background-color: white;
+        padding: 15px 48px 15px 15px;
+        box-shadow: 3px 2px 12px #777;
+        border-radius: 6px;
+        z-index: 2;
+        opacity: 0;
+        transition: opacity ease-in-out 0.3s 0s;
+      }
+      .isDone {
+        opacity: 1;
+        transition: opacity ease-in-out 0.4s 0s;
+      }
+      .alertBox.reallyModal {
+        padding-right: 15px;
+      }
+      .alertBox p,
+      .alertBox div,
+      .alertBox h3 {
+        margin-top: 0.4em;
+        margin-bottom: 0;
+      }
+      .alertBox h3 {
+        margin-top: 0.3em;
+        font-size: 0.9em;
+      }
+      .okHandle {
+        float: right;
+        cursor: pointer;
+        margin-right: -58px;
+        margin-top: -26px !important;
+        width: 32px;
+        height: 32px;
+        background: url('data:image/svg+xml;utf8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22iso-8859-1%22%3F%3E%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20version%3D%221.1%22%20id%3D%22Layer_1%22%20x%3D%220px%22%20y%3D%220px%22%20viewBox%3D%220%200%20128%20128%22%20style%3D%22enable-background%3Anew%200%200%20128%20128%3B%22%20xml%3Aspace%3D%22preserve%22%3E%3Crect%20x%3D%22-368%22%20y%3D%226%22%20style%3D%22display%3Anone%3Bfill%3A%23E0E0E0%3B%22%20width%3D%22866%22%20height%3D%221018%22%2F%3E%3Ccircle%20style%3D%22fill%3A%23FFFFFF%3B%22%20cx%3D%2264%22%20cy%3D%2264%22%20r%3D%2248%22%2F%3E%3Ccircle%20style%3D%22fill%3A%238CCFB9%3B%22%20cx%3D%2264%22%20cy%3D%2264%22%20r%3D%2239%22%2F%3E%3Ccircle%20style%3D%22fill%3Anone%3Bstroke%3A%23444B54%3Bstroke-width%3A6%3Bstroke-miterlimit%3A10%3B%22%20cx%3D%2264%22%20cy%3D%2264%22%20r%3D%2248%22%2F%3E%3Cpolyline%20style%3D%22fill%3Anone%3Bstroke%3A%23FFFFFF%3Bstroke-width%3A6%3Bstroke-linecap%3Around%3Bstroke-miterlimit%3A10%3B%22%20points%3D%2242%2C69%2055.55%2C81%20%20%2086%2C46%20%22%2F%3E%3C%2Fsvg%3E') no-repeat;
+      }
+      .centeredHV {
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }`)], {type: "text/css"});
+    }
+  }
+
+  function XHR() {
+    const modalMessage = ModalMessage();
+    const xhrError = error => {
+      modalMessage.create(`XHR error occured ${error.message}`, true);
+    };
+    const xhrAsync = (xData, timeout = 2000) => {
+      const isJSON = !xData.responseType; // Note: json response by default
+      const url = xData.url;
+      delete xData.url;
+      return new Promise((resolve, reject) => {
+        const xRequest = new XMLHttpRequest();
+        xRequest.timeout = timeout;
+        xRequest.onerror = error => reject(error);
+        xRequest.onreadystatechange = () => {
+          if (xRequest.readyState === 4) {
+            if (xRequest.status === 200) {
+              resolve(isJSON && JSON.parse(xRequest.response) || xRequest.response);
+            } else {
+              reject(xRequest.status);
+            }
+          }
+        };
+        xRequest.ontimeout = () => reject("timed out");
+        xRequest.open("post", url); // note: always post here
+        xRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xRequest.send(JSON.stringify(xData));
+      });
+    };
+    return {
+      xhr: async xhrData => {
+        try {
+          const xhrResponse = await xhrAsync(xhrData.data);
+          const hasCb = xhrData.done && xhrData.done instanceof Function;
+          return xhrResponse.error
+            ? xhrError(xhrResponse)
+            : hasCb
+              ? xhrData.done(xhrResponse)
+              : true;
+        } catch (error) {
+          return xhrError(error);
+        }
+      },
+      concatObj(someObj, obj2Concat) {
+        for (const l in obj2Concat) {
+          if (obj2Concat.hasOwnProperty(l)) {
+            someObj[l] = obj2Concat[l];
+          }
+        }
+      },
+      addHandlers(events, element, handler) {
+        events = events instanceof Array ? events : [events];
+        events.forEach(evt => element.addEventListener(evt, handler));
+      }
+    };
+  }
+
+  // a few usefull augments/polyfills
+  function extensions() {
+    if (extended) {
+      return true;
+    }
+
+    Function.args2Arr = function (args) {
+      return Array.apply([], {length: args.length}).map(function (v, i) {
+        return this[i];
+      }, args);
+    };
+
+    // run functions sequentially
+    Function.prototype.andThen = function () {
+      const args = Function.args2Arr(arguments);
+      const next = args.slice(1);
+      this();
+      return args[0] && next.length ?
+        args[0].andThen.apply(args[0], next) :
+        args.length === 1 ?
+          args[0]() :
+          true;
+    };
+
+    Function.prototype.partial = Function.prototype.partial || function () {
+      const stored_args = [].slice.call(arguments);
+      const fn = this;
+      return function () {
+        return fn.apply(null, stored_args.concat([].slice.call(arguments)));
+      };
+    };
+
+    Function.prototype.partialx = function () {
+      const fn = this, args = Array.prototype.slice.call(arguments);
+      return function () {
+        let arg = 0;
+        for (let i = 0; i < args.length && arg < arguments.length; i++) {
+          if (args[i] === undefined || args[i] === null) {
+            args[i] = arguments[arg++];
+          }
+        }
+        return fn.apply(this, args);
+      };
+    };
+
+    Boolean.prototype.yn = function () {
+      return false === this ? "no" : "yes";
+    };
+
+    Number.prototype.toRange = Number.prototype.toRange || function (fn, startvalue) {
+      startvalue = startvalue || 0;
+      fn = Object.isOfType(fn, Function) ? fn : function (a, i) {
+        return i + startvalue;
+      };
+      return String(new Array(this.valueOf())).split(",").map(fn);
+    };
+
+    Number.prototype.pretty = function (usa, noprecision) {
+      const somenum = this;
+      const dec = ("" + somenum).split(/[.,]/);
+      const lendec = dec[1] ? dec[1].length : 0;
+      const precision = lendec && !noprecision ? decPrecise(somenum, lendec) : dec[1];
+      const sep = usa ? "," : ".";
+      const decsep = usa ? "." : ",";
+
+      // from http://stackoverflow.com/questions/10473994/javascript-adding-decimal-numbers-issue/10474209
+      function decPrecise(d, l) {
+        return String(d.toFixed(12)).split(/[.,]/)[1].substr(0, l);
+      }
+
+      function xsep(num, sep) {
+        const n = String(num).split("")
+        ;let i = -3;
+        while (n.length + i > 0) {
+          n.splice(i, 0, sep);
+          i -= 4;
+        }
+        return n.join("");
+      }
+
+      return xsep(dec[0], sep) + (dec[1] ? decsep + precision : "");
+    };
+
+    Number.prototype.padLeft = function padLeft(len, padchr) {
+      padchr = padchr || "0";
+      const self = this + "";
+      return Math.pow(10, (len || 2) - self.length)
+        .toString()
+        .replace(/0/g, padchr)
+        .slice(1) + self;
+    };
+
+    // format static
+    String.Format = function () {
+      const args = Function.args2Arr(arguments);
+      return "".format.apply(args[0], args.slice(1));
+    };
+
+    String.prototype.format = function () {
+      return function (text, args) {
+        const len = text.length;
+        let index = 0,
+          parsed = "",
+          currToken = ""
+        ;
+        while (index < len) {
+          if (text[index] === "{" && !isNaN(parseInt(text[index + 1], 10))) {
+            index += 1;
+            currToken = "";
+            let istoken = true;
+            while (text[index] !== "}") {
+              if (isNaN(parseInt(text[index], 10))) {
+                istoken = false;
+                break;
+              }
+              currToken += text[index];
+              index += 1;
+            }
+            parsed += istoken && args[+currToken] || "{" + currToken + (text[index] || "");
+          } else {
+            parsed += text[index];
+          }
+          index += 1;
+        }
+        return parsed;
+      }(this, arguments);
+    };
+
+    String.prototype.repeat = function (n) {
+      const s = this;
+      let r = "";
+      while (n--) {
+        r += s;
+      }
+      return r;
+    };
+
+    // is character @ [atpos] upperCase?
+    String.prototype.charIsUpper = function (atpos) {
+      const chr = this.charAt(atpos);
+      return /[A-Z]|[\u0080-\u024F]/.test(chr) && chr === chr.toUpperCase();
+    };
+
+    String.prototype.firstUp = function () {
+      return this.slice(0, 1).toUpperCase() + this.slice(1).toLowerCase();
+    };
+
+    String.prototype.isValidEmail = function () {
+      // should be sufficient
+      return /^[\w._-]{1,}[+]?[\w._-]{0,}@[\w.-]+\.[a-zA-Z]{2,6}$/.test(this);
+    };
+
+    String.prototype.reCleanup = function (encodeHTML) {
+      const str = encodeHTML ? this.replace(/[\u0080-\u024F]/g, function (a) {
+        return "&#" + a.charCodeAt(0) + ";";
+      }) : this;
+      return str.replace(/[?*|.+$\/]|\\/g, function (c) {
+        return c === "\\" ? "" : "\\\\" + c;
+      });
+    };
+
+    Array.prototype.toRE = function () {
+      try {
+        return RegExp.apply(null, this);
+      }
+      catch (e) {
+        return /.*/;
+      }
+    };
+
+    Array.toRE = function (arr) {
+      return ([].toRE.call(arr));
+    };
+
+    Array.toCheckboxValues = (checkedIndex = 0, ...checked) => {
+      return checked.reduce((reduced, value, i) => reduced.concat({
+        check: i === checkedIndex ? 1 : 0,
+        val: String(value)
+      }), []);
+    };
+
+    // determine value frequencies in an array
+    Array.frequencies = arr => {
+      return arr.reduce((reduced, value) => {
+        if (reduced[value]) {
+          reduced[value] += 1;
+        } else {
+          reduced[value] = 1;
+        }
+        reduced.sum += value;
+        return reduced;
+      }, {sum: 0});
+    };
+
+    Object.print = Object.format = (thisObj, space = " ") =>
+      `<pre class="code">${JSON.stringify(thisObj, null, space)}</pre>`;
+
+    // see: http://codereview.stackexchange.com/questions/23317/istypeobj-gettypeobj-v0/23329#23329
+    Object.ofType = Object.isOfType = thisObj => {
+      if (!thisObj) {
+        return false;
+      }
+      const test = arguments.length > 1 ? Function.args2Arr(arguments).slice(1) : [];
+      const self = thisObj.constructor;
+      return (test).length ?
+        !!(test.filter(function (a) {
+          return a === self;
+        }).length) :
+        self.name || (String(self).match(/^function\s*([^\s(]+)/im) || [0, "ANONYMOUS_CONSTRUCTOR"])[1];
+    };
+
+    extended = true;
+    return extended;
   }
 
   return helperObj;
