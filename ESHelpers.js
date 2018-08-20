@@ -1,7 +1,8 @@
 ((w, d) => {
   "use strict";
   let useCustomCss = false;
-  let extended = extensions();
+  let extended = false;
+  loadExtensions();
   // note: git links are case sensitive
   const pathToCss = "//kooiinc.github.io/JSHelpers/Helpers.css";
   const helperObj = {             // Helpers methods:
@@ -22,7 +23,7 @@
 
   if (/fiddle|stacksnippets/i.test(self.location.href)) {
     console.log("ehr...");
-    extensions();
+    loadExtensions();
     setCustomCss(true);
     w.addEventListener("load", () =>
       d.body.insertBefore(createElementWithProps("div", {id: "helperload"}), d.body.firstChild));
@@ -640,7 +641,7 @@
   }
 
   // a few usefull augments/polyfills
-  function extensions() {
+  function loadExtensions() {
     if (extended) {
       return true;
     }
@@ -852,6 +853,5 @@
 
     return true;
   }
-
-  return helperObj;
+  extended = true;
 })(window, document);
