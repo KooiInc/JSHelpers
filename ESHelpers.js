@@ -67,7 +67,8 @@
     }
 
     d.querySelector(".linkhover").classList.remove("waiting");
-    helperObj.fader.fadeOutCB(d.querySelector("#helperload"), 600, () => helperLoader.style.display = "none");
+    const helperLoader = d.querySelector("#helperload");
+    helperObj.fader.fadeOutCB(helperLoader, 600, () => helperLoader.style.display = "none");
     w.addEventListener("mouseover", setSOLink);
     w.addEventListener("click", clickSOLink);
   }
@@ -91,7 +92,6 @@
             rep ${resp["owner"]["reputation"]}; question views: ${resp["view_count"]}
          </p>`;
       linkelement.attr("data-link", resp.link);
-      doneCB();
     };
 
     helperObj.xhr(
@@ -188,14 +188,14 @@
     p.innerHTML = args.join("")
       .replace(/\n/g, "<br>")
       .replace(/`([^`]*)`/g,
-        function (a, b, c) {
+        function (a, b) {
           return "<code>" + b + "</code>";
         });
     result.appendChild(p);
     return opts.direct ? (p.className = "show")
       : setTimeout(function () {
         p.className = "show";
-      }, +opts.timed * 1000 || 0);
+      }, +opts["timed"] * 1000 || 0);
   }
 
   function printDirect() {
@@ -356,7 +356,7 @@
               || self;
           };
           for (let l in args) {
-            add(l, +args[l]);
+            if (args.hasOwnProperty(l)) { add(l, +args[l]); }
           }
           return clone ? new Date(this) : this;
         }
@@ -787,7 +787,7 @@
 
     String.prototype.isValidEmail = function () {
       // should be sufficient
-      return /^[\w._-]{1,}[+]?[\w._-]{0,}@[\w.-]+\.[a-zA-Z]{2,6}$/.test(this);
+      return /^[\w._-]+[+]?[\w._-]+@[\w.-]+\.[a-zA-Z]{2,6}$/.test(this);
     };
 
     String.prototype.reCleanup = function (encodeHTML) {
