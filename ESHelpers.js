@@ -67,6 +67,8 @@
     if (solink && !solink.querySelector(".linkhover")) {
       solink.appendChild(createElementWithProps("div", {className: "linkhover waiting", "data-dyn": "true"}));
     }
+    w.addEventListener("mouseover", setSOLink);
+    w.addEventListener("click", clickSOLink);
   }
 
   function setSOLink(evt) {
@@ -88,8 +90,6 @@
             rep ${resp["owner"]["reputation"]}; question views: ${resp["view_count"]}
          </p>`;
       linkelement.attr("data-link", resp.link);
-      w.addEventListener("mouseover", setSOLink);
-      w.addEventListener("click", clickSOLink);
       d.querySelector(".linkhover").classList.remove("waiting");
       const helperLoader = d.querySelector("#helperload");
       helperObj.fader.fadeOutCB(helperLoader, 600, () => helperLoader.style.display = "none");
