@@ -850,8 +850,7 @@
         self.name || (String(self).match(/^function\s*([^\s(]+)/im) || [0, "ANONYMOUS_CONSTRUCTOR"])[1];
     };
 
-    extended = true;
-    return extended;
+    return true;
   }
 
   return helperObj;
