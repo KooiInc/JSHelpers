@@ -21,6 +21,7 @@
   };
 
   if (/fiddle|stacksnippets/i.test(self.location.href)) {
+    console.log("ehr...");
     extensions();
     setCustomCss(true);
     w.addEventListener("load", () =>
