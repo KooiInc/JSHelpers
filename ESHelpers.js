@@ -22,7 +22,6 @@
   };
 
   if (/fiddle|stacksnippets/i.test(self.location.href)) {
-    console.log("ehr...");
     loadExtensions();
     setCustomCss(true);
     w.addEventListener("load", () =>
@@ -58,7 +57,7 @@
 
   function unloadCSS() {
     const css = document.querySelector("#HelperCSS");
-    return void (css && document.querySelector("head").removeChild(css));
+    return (css && document.querySelector("head").removeChild(css));
   }
 
   // StackOverflow/jsFiddle special handling
@@ -69,10 +68,12 @@
     }
     w.addEventListener("mouseover", setSOLink);
     w.addEventListener("click", clickSOLink);
+    const helperLoader = d.querySelector("#helperload");
+    helperObj.fader.fadeOutCB(helperLoader, 600, () => helperLoader.style.display = "none");
   }
 
   function setSOLink(evt) {
-    if (!evt.target.dataset.link) {
+    if (evt.target.dataset.link) {
       return;
     }
 
@@ -91,8 +92,6 @@
          </p>`;
       linkelement.attr("data-link", resp.link);
       d.querySelector(".linkhover").classList.remove("waiting");
-      const helperLoader = d.querySelector("#helperload");
-      helperObj.fader.fadeOutCB(helperLoader, 600, () => helperLoader.style.display = "none");
     };
 
     helperObj.xhr(
